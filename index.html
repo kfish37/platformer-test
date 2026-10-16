@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+  <title>Platformer</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #1a1a2e;
+      color: #eee;
+      font-family: system-ui, sans-serif;
+      overflow: hidden;
+    }
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 10px;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    #game {
+      border: 2px solid #333;
+      image-rendering: pixelated;
+      display: block;
+      background: #87ceeb;
+    }
+    .hint {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>🐠 Platformer</h2>
+    <canvas id="game" width="1200" height="675"></canvas>
+    <div class="hint">Arrows or A/D · Space or W to jump · R to reset</div>
+  </div>
+  <script type="module" src="./dist/main.js"></script>
+</body>
+</html>

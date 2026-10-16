@@ -1,0 +1,42 @@
+{
+ "open": {
+  "src": "sloomooactiv.png",
+  "w": 64,
+  "h": 37
+ },
+ "o": {
+  "src": "Sloomoo_Amazed.png",
+  "w": 66,
+  "h": 152
+ },
+ "grin": {
+  "src": "sloomoostretch.png",
+  "w": 45,
+  "h": 36
+ },
+ "shout": {
+  "src": "sloomoowash.png",
+  "w": 76,
+  "h": 60
+ },
+ "ooh": {
+  "src": "sloomoomag.png",
+  "w": 27,
+  "h": 27
+ },
+ "rush": {
+  "src": "Sloomoo_Rushed.png",
+  "w": 217,
+  "h": 151
+ },
+ "flat": {
+  "src": "sloomoomelt.png",
+  "w": 20,
+  "h": 5
+ },
+ "smile": {
+  "src": "Sloomoo_Slimey.png",
+  "w": 71,
+  "h": 33
+ }
+}
