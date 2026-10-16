@@ -797,10 +797,10 @@
   },
   {
    "src": "assets/props/L18_L_AN.png",
-   "x": 1677,
+   "x": 1680,
    "y": 861,
-   "w": 246,
-   "h": 95
+   "w": 241,
+   "h": 49
   },
   {
    "src": "assets/props/L18_L_D3.png",
@@ -839,10 +839,10 @@
   },
   {
    "src": "assets/props/L18_L_CE1.png",
-   "x": 2346,
+   "x": 2350,
    "y": 471,
-   "w": 307,
-   "h": 119
+   "w": 301,
+   "h": 61
   },
   {
    "src": "assets/props/L18_L_U1_plinth.png",
@@ -916,10 +916,10 @@
   },
   {
    "src": "assets/props/L18_L_PA.png",
-   "x": 2336,
-   "y": 1677,
-   "w": 288,
-   "h": 161
+   "x": 2340,
+   "y": 1691,
+   "w": 281,
+   "h": 57
   },
   {
    "src": "assets/props/L18_L_ST1.png",
@@ -986,10 +986,10 @@
   },
   {
    "src": "assets/props/L18_L_SK2.png",
-   "x": 6075,
-   "y": 283,
-   "w": 370,
-   "h": 208
+   "x": 6080,
+   "y": 301,
+   "w": 361,
+   "h": 73
   },
   {
    "src": "assets/props/L18_L_OS.png",
@@ -1000,10 +1000,10 @@
   },
   {
    "src": "assets/props/L18_L_OD.png",
-   "x": 6138,
+   "x": 6140,
    "y": 122,
-   "w": 225,
-   "h": 87
+   "w": 221,
+   "h": 45
   },
   {
    "src": "assets/props/V5_pil_LW3.png",
@@ -1021,31 +1021,31 @@
   },
   {
    "src": "assets/props/L18_L_SW3.png",
-   "x": 6786,
-   "y": 285,
-   "w": 329,
-   "h": 184
+   "x": 6790,
+   "y": 301,
+   "w": 321,
+   "h": 65
   },
   {
    "src": "assets/props/L18_L_SW4.png",
-   "x": 7107,
+   "x": 7110,
    "y": 301,
-   "w": 246,
-   "h": 95
+   "w": 241,
+   "h": 49
   },
   {
    "src": "assets/props/L18_L_F2.png",
-   "x": 7588,
-   "y": 232,
-   "w": 195,
-   "h": 110
+   "x": 7590,
+   "y": 242,
+   "w": 191,
+   "h": 39
   },
   {
    "src": "assets/props/L18_L_F3.png",
-   "x": 7788,
+   "x": 7790,
    "y": 152,
-   "w": 205,
-   "h": 79
+   "w": 201,
+   "h": 41
   },
   {
    "src": "assets/props/L18_L_SH1_plinth.png",
@@ -1106,9 +1106,9 @@
   {
    "src": "assets/props/L18_dec_mach_intake.png",
    "x": 325,
-   "y": 1198,
+   "y": 1172,
    "w": 150,
-   "h": 106
+   "h": 132
   },
   {
    "src": "assets/props/L18_dec_term_catwalk.png",
@@ -1168,10 +1168,10 @@
   },
   {
    "src": "assets/props/L18_dec_mach_SH3.png",
-   "x": 6250,
-   "y": 963,
-   "w": 200,
-   "h": 141
+   "x": 6275,
+   "y": 979,
+   "w": 150,
+   "h": 125
   },
   {
    "src": "assets/props/L18_dec_srv_SH3.png",
@@ -1202,11 +1202,11 @@
    "h": 21
   },
   {
-   "src": "assets/props/V5_vent_img.png",
-   "x": 7815,
-   "y": 34,
-   "w": 110,
-   "h": 110
+   "src": "assets/props/L18_dec_vent_img.png",
+   "x": 7810,
+   "y": 28,
+   "w": 120,
+   "h": 116
   },
   {
    "src": "assets/props/L18_D_floor.png",
@@ -1238,52 +1238,52 @@
   },
   {
    "src": "assets/props/L18_D_led0.png",
-   "x": 5918,
+   "x": 5920,
    "y": 1782,
-   "w": 133,
-   "h": 51
+   "w": 130,
+   "h": 27
   },
   {
    "src": "assets/props/L18_D_led1.png",
-   "x": 5778,
+   "x": 5780,
    "y": 1682,
-   "w": 133,
-   "h": 51
+   "w": 130,
+   "h": 27
   },
   {
    "src": "assets/props/L18_D_led2.png",
-   "x": 5918,
+   "x": 5920,
    "y": 1582,
-   "w": 133,
-   "h": 51
+   "w": 130,
+   "h": 27
   },
   {
    "src": "assets/props/L18_D_led3.png",
-   "x": 5778,
+   "x": 5780,
    "y": 1482,
-   "w": 133,
-   "h": 51
+   "w": 130,
+   "h": 27
   },
   {
    "src": "assets/props/L18_D_led4.png",
-   "x": 5918,
+   "x": 5920,
    "y": 1382,
-   "w": 133,
-   "h": 51
+   "w": 130,
+   "h": 27
   },
   {
    "src": "assets/props/L18_D_led5.png",
-   "x": 5778,
+   "x": 5780,
    "y": 1282,
-   "w": 133,
-   "h": 51
+   "w": 130,
+   "h": 27
   },
   {
    "src": "assets/props/L18_D_led6.png",
-   "x": 5918,
+   "x": 5920,
    "y": 1182,
-   "w": 133,
-   "h": 51
+   "w": 130,
+   "h": 27
   },
   {
    "src": "assets/props/L18_sh_72.png",
@@ -1343,9 +1343,9 @@
   },
   {
    "src": "assets/props/L18_sh_81.png",
-   "x": 6235,
+   "x": 6264,
    "y": 1088,
-   "w": 229,
+   "w": 172,
    "h": 24
   },
   {
