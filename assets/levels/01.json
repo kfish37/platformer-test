@@ -307,6 +307,72 @@
    "y": 40,
    "w": 20,
    "h": 160
+  },
+  {
+   "x": 4690,
+   "y": 1860,
+   "w": 2170,
+   "h": 140
+  },
+  {
+   "x": 4650,
+   "y": 1200,
+   "w": 40,
+   "h": 800
+  },
+  {
+   "x": 6820,
+   "y": 1200,
+   "w": 40,
+   "h": 800
+  },
+  {
+   "x": 4730,
+   "y": 1766,
+   "w": 520,
+   "h": 32
+  },
+  {
+   "x": 5930,
+   "y": 1780,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5790,
+   "y": 1680,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5930,
+   "y": 1580,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5790,
+   "y": 1480,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5930,
+   "y": 1380,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5790,
+   "y": 1280,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5930,
+   "y": 1180,
+   "w": 110,
+   "h": 32
   }
  ],
  "doors": [
@@ -317,11 +383,11 @@
    "w": 20,
    "h": 100,
    "art": {
-    "src": "assets/props/V5_door_d1.png",
-    "x": 4135,
-    "y": 516,
-    "w": 50,
-    "h": 108
+    "src": "assets/props/L18_hatch_d1.png",
+    "x": 4110,
+    "y": 521,
+    "w": 100,
+    "h": 98
    }
   },
   {
@@ -331,11 +397,11 @@
    "w": 20,
    "h": 100,
    "art": {
-    "src": "assets/props/V5_door_d2.png",
-    "x": 6985,
-    "y": 196,
-    "w": 50,
-    "h": 108
+    "src": "assets/props/L18_hatch_d2.png",
+    "x": 6960,
+    "y": 201,
+    "w": 100,
+    "h": 98
    }
   }
  ],
@@ -417,6 +483,14 @@
    "patrolMin": 6290,
    "patrolMax": 6550,
    "facing": 1
+  },
+  {
+   "type": "patroller",
+   "x": 6250,
+   "y": 1830,
+   "patrolMin": 6130,
+   "patrolMax": 6480,
+   "facing": -1
   }
  ],
  "checkpoints": [
@@ -523,7 +597,7 @@
  "background": "#1b3a40",
  "platformColor": "#4a6a74",
  "next": "02",
- "backgroundImage": "assets/backgrounds/level01_v5_bg.jpg",
+ "backgroundImage": "assets/backgrounds/level01_v6_bg.jpg",
  "props": [
   {
    "src": "assets/props/L18_panel_0.png",
@@ -552,6 +626,125 @@
    "y": 130,
    "w": 520,
    "h": 230
+  },
+  {
+   "src": "assets/props/L18_drain_0.png",
+   "x": 1980,
+   "y": 1500,
+   "w": 250,
+   "h": 294
+  },
+  {
+   "src": "assets/props/L18_drain_1.png",
+   "x": 2085,
+   "y": 1735,
+   "w": 60,
+   "h": 191
+  },
+  {
+   "src": "assets/props/L18_drain_2.png",
+   "x": 2680,
+   "y": 1560,
+   "w": 300,
+   "h": 201
+  },
+  {
+   "src": "assets/props/L18_drain_3.png",
+   "x": 2700,
+   "y": 1330,
+   "w": 420,
+   "h": 308
+  },
+  {
+   "src": "assets/props/L18_drain_4.png",
+   "x": 3250,
+   "y": 1470,
+   "w": 100,
+   "h": 121
+  },
+  {
+   "src": "assets/props/L18_drain_5.png",
+   "x": 3480,
+   "y": 1250,
+   "w": 230,
+   "h": 270
+  },
+  {
+   "src": "assets/props/L18_drain_6.png",
+   "x": 5780,
+   "y": 860,
+   "w": 300,
+   "h": 201
+  },
+  {
+   "src": "assets/props/L18_drain_7.png",
+   "x": 6330,
+   "y": 640,
+   "w": 440,
+   "h": 323
+  },
+  {
+   "src": "assets/props/L18_drain_8.png",
+   "x": 5330,
+   "y": 820,
+   "w": 220,
+   "h": 258
+  },
+  {
+   "src": "assets/props/L18_drain_9.png",
+   "x": 5430,
+   "y": 1000,
+   "w": 60,
+   "h": 191
+  },
+  {
+   "src": "assets/props/L18_D_dec0.png",
+   "x": 4780,
+   "y": 1590,
+   "w": 240,
+   "h": 282
+  },
+  {
+   "src": "assets/props/L18_D_dec1.png",
+   "x": 5360,
+   "y": 1720,
+   "w": 70,
+   "h": 223
+  },
+  {
+   "src": "assets/props/L18_D_dec2.png",
+   "x": 5480,
+   "y": 1250,
+   "w": 440,
+   "h": 323
+  },
+  {
+   "src": "assets/props/L18_D_dec3.png",
+   "x": 6190,
+   "y": 1580,
+   "w": 230,
+   "h": 270
+  },
+  {
+   "src": "assets/props/L18_D_dec4.png",
+   "x": 6500,
+   "y": 1640,
+   "w": 280,
+   "h": 188
+  },
+  {
+   "src": "assets/props/L18_D_dec5.png",
+   "x": 6420,
+   "y": 1480,
+   "w": 100,
+   "h": 121
+  },
+  {
+   "src": "assets/props/L18_D_dec6.png",
+   "x": 4900,
+   "y": 1230,
+   "w": 420,
+   "h": 308
   },
   {
    "src": "assets/props/V5_junk_spawn.png",
@@ -639,10 +832,10 @@
   },
   {
    "src": "assets/props/L18_L_AN.png",
-   "x": 1680,
+   "x": 1677,
    "y": 861,
-   "w": 241,
-   "h": 83
+   "w": 246,
+   "h": 95
   },
   {
    "src": "assets/props/L18_L_D3.png",
@@ -681,10 +874,10 @@
   },
   {
    "src": "assets/props/L18_L_CE1.png",
-   "x": 2350,
+   "x": 2346,
    "y": 471,
-   "w": 301,
-   "h": 104
+   "w": 307,
+   "h": 119
   },
   {
    "src": "assets/props/L18_L_U1_plinth.png",
@@ -758,10 +951,10 @@
   },
   {
    "src": "assets/props/L18_L_PA.png",
-   "x": 2340,
-   "y": 1691,
-   "w": 281,
-   "h": 97
+   "x": 2336,
+   "y": 1677,
+   "w": 288,
+   "h": 161
   },
   {
    "src": "assets/props/L18_L_ST1.png",
@@ -828,10 +1021,10 @@
   },
   {
    "src": "assets/props/L18_L_SK2.png",
-   "x": 6080,
-   "y": 301,
-   "w": 361,
-   "h": 125
+   "x": 6075,
+   "y": 283,
+   "w": 370,
+   "h": 208
   },
   {
    "src": "assets/props/L18_L_OS.png",
@@ -842,10 +1035,10 @@
   },
   {
    "src": "assets/props/L18_L_OD.png",
-   "x": 6140,
+   "x": 6138,
    "y": 122,
-   "w": 221,
-   "h": 76
+   "w": 225,
+   "h": 87
   },
   {
    "src": "assets/props/V5_pil_LW3.png",
@@ -863,31 +1056,31 @@
   },
   {
    "src": "assets/props/L18_L_SW3.png",
-   "x": 6790,
-   "y": 301,
-   "w": 321,
-   "h": 111
+   "x": 6786,
+   "y": 285,
+   "w": 329,
+   "h": 184
   },
   {
    "src": "assets/props/L18_L_SW4.png",
-   "x": 7110,
+   "x": 7107,
    "y": 301,
-   "w": 241,
-   "h": 83
+   "w": 246,
+   "h": 95
   },
   {
    "src": "assets/props/L18_L_F2.png",
-   "x": 7590,
-   "y": 242,
-   "w": 191,
-   "h": 66
+   "x": 7588,
+   "y": 232,
+   "w": 195,
+   "h": 110
   },
   {
    "src": "assets/props/L18_L_F3.png",
-   "x": 7790,
+   "x": 7788,
    "y": 152,
-   "w": 201,
-   "h": 69
+   "w": 205,
+   "h": 79
   },
   {
    "src": "assets/props/L18_L_SH1_plinth.png",
@@ -946,109 +1139,109 @@
    "h": 160
   },
   {
-   "src": "assets/props/V5_mach_intake.png",
-   "x": 300,
-   "y": 1092,
-   "w": 200,
-   "h": 212
-  },
-  {
-   "src": "assets/props/V5_term_catwalk.png",
-   "x": 1100,
-   "y": 886,
-   "w": 110,
-   "h": 148
-  },
-  {
-   "src": "assets/props/V5_term_annex.png",
-   "x": 1770,
-   "y": 703,
-   "w": 120,
-   "h": 161
-  },
-  {
-   "src": "assets/props/V5_pump_alcove.png",
-   "x": 2370,
-   "y": 1579,
-   "w": 100,
-   "h": 115
-  },
-  {
-   "src": "assets/props/V5_gantry_depths.png",
-   "x": 2860,
-   "y": 1523,
-   "w": 330,
-   "h": 341
-  },
-  {
-   "src": "assets/props/V5_term_U1.png",
-   "x": 2800,
-   "y": 490,
-   "w": 100,
-   "h": 134
-  },
-  {
-   "src": "assets/props/V5_mach_U3.png",
-   "x": 3960,
-   "y": 465,
+   "src": "assets/props/L18_dec_mach_intake.png",
+   "x": 325,
+   "y": 1198,
    "w": 150,
-   "h": 159
+   "h": 106
   },
   {
-   "src": "assets/props/V5_term_U4.png",
-   "x": 4420,
-   "y": 476,
-   "w": 110,
-   "h": 148
-  },
-  {
-   "src": "assets/props/V5_srv_SH1a.png",
-   "x": 5010,
-   "y": 901,
-   "w": 100,
-   "h": 203
-  },
-  {
-   "src": "assets/props/V5_srv_SH1b.png",
-   "x": 5200,
-   "y": 901,
-   "w": 100,
-   "h": 203
-  },
-  {
-   "src": "assets/props/V5_srv_SH2.png",
-   "x": 5560,
-   "y": 901,
-   "w": 100,
-   "h": 203
-  },
-  {
-   "src": "assets/props/V5_mach_SH3.png",
-   "x": 6200,
-   "y": 787,
-   "w": 300,
-   "h": 317
-  },
-  {
-   "src": "assets/props/V5_srv_SH3.png",
-   "x": 6620,
-   "y": 901,
-   "w": 100,
-   "h": 203
-  },
-  {
-   "src": "assets/props/V5_term_OD.png",
-   "x": 6250,
-   "y": -24,
-   "w": 110,
-   "h": 148
-  },
-  {
-   "src": "assets/props/V5_pump_F2.png",
-   "x": 7610,
-   "y": 141,
+   "src": "assets/props/L18_dec_term_catwalk.png",
+   "x": 1110,
+   "y": 971,
    "w": 90,
-   "h": 103
+   "h": 63
+  },
+  {
+   "src": "assets/props/L18_dec_term_annex.png",
+   "x": 1780,
+   "y": 793,
+   "w": 100,
+   "h": 71
+  },
+  {
+   "src": "assets/props/L18_dec_pump_alcove.png",
+   "x": 2380,
+   "y": 1597,
+   "w": 80,
+   "h": 97
+  },
+  {
+   "src": "assets/props/L18_dec_gantry_depths.png",
+   "x": 2940,
+   "y": 1040,
+   "w": 170,
+   "h": 824
+  },
+  {
+   "src": "assets/props/L18_dec_term_U1.png",
+   "x": 2800,
+   "y": 511,
+   "w": 100,
+   "h": 113
+  },
+  {
+   "src": "assets/props/L18_dec_mach_U3.png",
+   "x": 3975,
+   "y": 388,
+   "w": 120,
+   "h": 236
+  },
+  {
+   "src": "assets/props/L18_dec_term_U4.png",
+   "x": 4425,
+   "y": 553,
+   "w": 100,
+   "h": 71
+  },
+  {
+   "src": "assets/props/L18_dec_srv_SH1a.png",
+   "x": 5000,
+   "y": 868,
+   "w": 120,
+   "h": 236
+  },
+  {
+   "src": "assets/props/L18_dec_srv_SH1b.png",
+   "x": 5185,
+   "y": 921,
+   "w": 130,
+   "h": 183
+  },
+  {
+   "src": "assets/props/L18_dec_srv_SH2.png",
+   "x": 5550,
+   "y": 868,
+   "w": 120,
+   "h": 236
+  },
+  {
+   "src": "assets/props/L18_dec_mach_SH3.png",
+   "x": 6250,
+   "y": 963,
+   "w": 200,
+   "h": 141
+  },
+  {
+   "src": "assets/props/L18_dec_srv_SH3.png",
+   "x": 6605,
+   "y": 921,
+   "w": 130,
+   "h": 183
+  },
+  {
+   "src": "assets/props/L18_dec_term_OD.png",
+   "x": 6265,
+   "y": 68,
+   "w": 80,
+   "h": 56
+  },
+  {
+   "src": "assets/props/L18_dec_pump_F2.png",
+   "x": 7620,
+   "y": 159,
+   "w": 70,
+   "h": 85
   },
   {
    "src": "assets/props/V5_vent_glow.png",
@@ -1070,64 +1263,141 @@
    "y": 34,
    "w": 110,
    "h": 110
+  },
+  {
+   "src": "assets/props/L18_D_floor.png",
+   "x": 4675,
+   "y": 1854,
+   "w": 2200,
+   "h": 154
+  },
+  {
+   "src": "assets/props/L18_D_wall0.png",
+   "x": 4642,
+   "y": 1198,
+   "w": 56,
+   "h": 810
+  },
+  {
+   "src": "assets/props/L18_D_wall1.png",
+   "x": 6812,
+   "y": 1198,
+   "w": 56,
+   "h": 810
+  },
+  {
+   "src": "assets/props/L18_D_crawl.png",
+   "x": 4715,
+   "y": 1756,
+   "w": 550,
+   "h": 50
+  },
+  {
+   "src": "assets/props/L18_D_led0.png",
+   "x": 5918,
+   "y": 1782,
+   "w": 133,
+   "h": 51
+  },
+  {
+   "src": "assets/props/L18_D_led1.png",
+   "x": 5778,
+   "y": 1682,
+   "w": 133,
+   "h": 51
+  },
+  {
+   "src": "assets/props/L18_D_led2.png",
+   "x": 5918,
+   "y": 1582,
+   "w": 133,
+   "h": 51
+  },
+  {
+   "src": "assets/props/L18_D_led3.png",
+   "x": 5778,
+   "y": 1482,
+   "w": 133,
+   "h": 51
+  },
+  {
+   "src": "assets/props/L18_D_led4.png",
+   "x": 5918,
+   "y": 1382,
+   "w": 133,
+   "h": 51
+  },
+  {
+   "src": "assets/props/L18_D_led5.png",
+   "x": 5778,
+   "y": 1282,
+   "w": 133,
+   "h": 51
+  },
+  {
+   "src": "assets/props/L18_D_led6.png",
+   "x": 5918,
+   "y": 1182,
+   "w": 133,
+   "h": 51
   }
  ],
  "fgProps": [
   {
-   "src": "assets/props/V5_fg_0.png",
+   "src": "assets/props/L18_fg_0.png",
    "x": 1790,
-   "y": 1825,
-   "w": 380,
-   "h": 189
+   "y": 1704,
+   "w": 64,
+   "h": 310
   },
   {
-   "src": "assets/props/V5_fg_1.png",
-   "x": 2290,
-   "y": 1850,
-   "w": 330,
-   "h": 164
+   "src": "assets/props/L18_fg_1.png",
+   "x": 2330,
+   "y": 1762,
+   "w": 52,
+   "h": 252
   },
   {
-   "src": "assets/props/V5_fg_2.png",
-   "x": 2900,
-   "y": 1806,
-   "w": 420,
-   "h": 208
+   "src": "assets/props/L18_fg_2.png",
+   "x": 2940,
+   "y": 1684,
+   "w": 68,
+   "h": 330
   },
   {
-   "src": "assets/props/V5_fg_3.png",
-   "x": 3330,
-   "y": 1850,
-   "w": 330,
-   "h": 164
+   "src": "assets/props/L18_fg_3.png",
+   "x": 3370,
+   "y": 1762,
+   "w": 52,
+   "h": 252
   },
   {
-   "src": "assets/props/V5_fg_4.png",
-   "x": 3600,
-   "y": 1865,
-   "w": 300,
-   "h": 149
+   "src": "assets/props/L18_fg_4.png",
+   "x": 3640,
+   "y": 1723,
+   "w": 60,
+   "h": 291
   },
   {
-   "src": "assets/props/V5_fg_5.png",
-   "x": 4900,
-   "y": 1825,
-   "w": 380,
-   "h": 189
+   "src": "assets/props/L18_fg_5.png",
+   "x": 4940,
+   "y": 1684,
+   "w": 68,
+   "h": 330
   },
   {
-   "src": "assets/props/V5_fg_6.png",
-   "x": 5800,
-   "y": 1845,
-   "w": 340,
-   "h": 169
+   "src": "assets/props/L18_fg_6.png",
+   "x": 5840,
+   "y": 1723,
+   "w": 60,
+   "h": 291
   },
   {
-   "src": "assets/props/V5_fg_7.png",
-   "x": 6500,
-   "y": 1825,
-   "w": 380,
-   "h": 189
+   "src": "assets/props/L18_fg_7.png",
+   "x": 6540,
+   "y": 1684,
+   "w": 68,
+   "h": 330
   }
  ],
  "hideGoalFlag": true,
