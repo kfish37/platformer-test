@@ -97,7 +97,7 @@ export function draw(ctx) {
             if (!onScreen(pr))
                 continue;
             if (lvl.backgroundImage)
-                drawPropLit(ctx, pr);
+                drawPropLit(ctx, pr, lvl);
             else {
                 const pi = getImg(pr.src);
                 if (pi.complete && pi.naturalWidth > 0)
@@ -143,22 +143,8 @@ export function draw(ctx) {
         }
     }
     if (lvl.switches) {
-        for (const s of lvl.switches) {
-            if (s.art) {
-                const si = getImg(s.art.src);
-                if (si.complete && si.naturalWidth > 0)
-                    ctx.drawImage(si, s.art.x, s.art.y, s.art.w, s.art.h);
-                if (isSwitchPressed(s)) {
-                    ctx.fillStyle = "rgba(82,210,115,0.85)";
-                    ctx.beginPath();
-                    ctx.arc(s.x + s.w / 2, s.y - 6, 6, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                continue;
-            }
-            ctx.fillStyle = isSwitchPressed(s) ? "#52d273" : "#ff5a4d";
-            ctx.fillRect(s.x, s.y + (isSwitchPressed(s) ? s.h * 0.6 : 0), s.w, isSwitchPressed(s) ? s.h * 0.4 : s.h);
-        }
+        for (const s of lvl.switches)
+            drawLever(ctx, s);
     }
     if (lvl.backgroundImage)
         drawDepthAtmosphere(ctx, lvl);
@@ -535,7 +521,7 @@ function hash01(n) { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return 
 function wrapN(v, m) { return ((v % m) + m) % m; }
 const litCache = new Map();
 const LIT_PAD = 28;
-function buildLit(img, w, h) {
+function buildLit(img, w, h, tint) {
     const W = Math.ceil(w) + LIT_PAD * 2, H = Math.ceil(h) + LIT_PAD * 2;
     const c = document.createElement("canvas");
     c.width = W;
@@ -549,7 +535,9 @@ function buildLit(img, w, h) {
     g.drawImage(img, LIT_PAD, LIT_PAD, w, h);
     g.restore();
     g.globalCompositeOperation = "source-atop";
-    g.fillStyle = "rgba(14,52,62,0.17)";
+    g.fillStyle = "rgba(14,52,62,0.10)";
+    g.fillRect(0, 0, W, H);
+    g.fillStyle = "rgba(" + tint[0] + "," + tint[1] + "," + tint[2] + ",0.26)";
     g.fillRect(0, 0, W, H);
     const gr = g.createLinearGradient(0, LIT_PAD, 0, LIT_PAD + h);
     gr.addColorStop(0, "rgba(0,0,0,0)");
@@ -559,7 +547,36 @@ function buildLit(img, w, h) {
     g.fillRect(0, LIT_PAD, W, h);
     return c;
 }
-function drawPropLit(ctx, pr) {
+let bgSmall = null;
+let bgSmallSrc = "";
+const BGS_W = 400, BGS_H = 100;
+function sampleBgTint(lvl, cx, cy) {
+    if (!lvl.backgroundImage)
+        return [14, 52, 62];
+    const bi = getImg(lvl.backgroundImage);
+    if (!(bi.complete && bi.naturalWidth > 0))
+        return [14, 52, 62];
+    if (!bgSmall || bgSmallSrc !== lvl.backgroundImage) {
+        const c = document.createElement("canvas");
+        c.width = BGS_W;
+        c.height = BGS_H;
+        bgSmall = c.getContext("2d", { willReadFrequently: true });
+        bgSmall.drawImage(bi, 0, 0, BGS_W, BGS_H);
+        bgSmallSrc = lvl.backgroundImage;
+    }
+    const sx = Math.max(1, Math.min(BGS_W - 3, Math.round(cx / lvl.width * BGS_W)));
+    const sy = Math.max(1, Math.min(BGS_H - 3, Math.round(cy / lvl.height * BGS_H)));
+    const d = bgSmall.getImageData(sx - 1, sy - 1, 3, 3).data;
+    let r = 0, g = 0, b = 0;
+    for (let i = 0; i < 9; i++) {
+        r += d[i * 4];
+        g += d[i * 4 + 1];
+        b += d[i * 4 + 2];
+    }
+    return [Math.round(r / 9 / 16) * 16, Math.round(g / 9 / 16) * 16, Math.round(b / 9 / 16) * 16];
+}
+const tintCache = new Map();
+function drawPropLit(ctx, pr, lvl) {
     const pi = getImg(pr.src);
     if (!(pi.complete && pi.naturalWidth > 0))
         return;
@@ -567,10 +584,16 @@ function drawPropLit(ctx, pr) {
         ctx.drawImage(pi, pr.x, pr.y, pr.w, pr.h);
         return;
     }
-    const key = pr.src + "|" + pr.w + "|" + pr.h;
+    const pk = pr.src + "@" + pr.x + "," + pr.y;
+    let tint = tintCache.get(pk);
+    if (!tint) {
+        tint = sampleBgTint(lvl, pr.x + pr.w / 2, pr.y + pr.h * 0.4);
+        tintCache.set(pk, tint);
+    }
+    const key = pr.src + "|" + pr.w + "|" + pr.h + "|" + tint.join(",");
     let c = litCache.get(key);
     if (!c) {
-        c = buildLit(pi, pr.w, pr.h);
+        c = buildLit(pi, pr.w, pr.h, tint);
         litCache.set(key, c);
     }
     ctx.drawImage(c, pr.x - LIT_PAD, pr.y - LIT_PAD);
@@ -738,5 +761,38 @@ function drawFrontAtmosphere(ctx) {
         ctx.fill();
     }
     ctx.restore();
+}
+// ---- Lever switches: every switch is the lever sprite; it swings off -> on when pressed ----
+const LEVER_FRAMES = 7;
+const LEVER_SWING_MS = 260;
+const leverPressedAt = new Map();
+function drawLever(ctx, s) {
+    const pressed = isSwitchPressed(s);
+    let p = 0;
+    if (pressed) {
+        let t0 = leverPressedAt.get(s);
+        if (t0 === undefined) {
+            t0 = performance.now();
+            leverPressedAt.set(s, t0);
+        }
+        const u = Math.min(1, (performance.now() - t0) / LEVER_SWING_MS);
+        p = 1 - Math.pow(1 - u, 3); // ease-out: slams over, settles
+    }
+    else if (leverPressedAt.has(s)) {
+        leverPressedAt.delete(s);
+    }
+    const idx = Math.max(0, Math.min(LEVER_FRAMES - 1, Math.round(p * (LEVER_FRAMES - 1))));
+    const img = getImg("assets/props/lever_f" + idx + ".png");
+    for (let i = 0; i < LEVER_FRAMES; i++)
+        getImg("assets/props/lever_f" + i + ".png"); // preload
+    const w = 54, h = 59;
+    const x = s.x + s.w / 2 - w / 2, y = s.y + s.h + 3 - h;
+    if (img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, x, y, w, h);
+    }
+    else {
+        ctx.fillStyle = pressed ? "#52d273" : "#ff5a4d";
+        ctx.fillRect(s.x, s.y, s.w, s.h);
+    }
 }
 //# sourceMappingURL=render.js.map
