@@ -1,0 +1,1230 @@
+{
+ "name": "Cavern Lab",
+ "width": 8000,
+ "height": 2000,
+ "spawn": {
+  "x": 60,
+  "y": 1260
+ },
+ "goal": {
+  "x": 7860,
+  "y": 110,
+  "w": 20,
+  "h": 40
+ },
+ "killY": 2250,
+ "platforms": [
+  {
+   "x": -40,
+   "y": 0,
+   "w": 40,
+   "h": 2000
+  },
+  {
+   "x": 8000,
+   "y": 0,
+   "w": 40,
+   "h": 2000
+  },
+  {
+   "x": 0,
+   "y": 0,
+   "w": 8000,
+   "h": 40
+  },
+  {
+   "x": 0,
+   "y": 1300,
+   "w": 520,
+   "h": 100
+  },
+  {
+   "x": 680,
+   "y": 1300,
+   "w": 420,
+   "h": 100
+  },
+  {
+   "x": 1250,
+   "y": 1300,
+   "w": 360,
+   "h": 100
+  },
+  {
+   "x": 450,
+   "y": 1225,
+   "w": 130,
+   "h": 32
+  },
+  {
+   "x": 600,
+   "y": 1120,
+   "w": 100,
+   "h": 32
+  },
+  {
+   "x": 780,
+   "y": 1030,
+   "w": 100,
+   "h": 32
+  },
+  {
+   "x": 960,
+   "y": 1030,
+   "w": 540,
+   "h": 32
+  },
+  {
+   "x": 1530,
+   "y": 950,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 1690,
+   "y": 860,
+   "w": 220,
+   "h": 32
+  },
+  {
+   "x": 1900,
+   "y": 1300,
+   "w": 720,
+   "h": 40
+  },
+  {
+   "x": 1730,
+   "y": 1380,
+   "w": 40,
+   "h": 480
+  },
+  {
+   "x": 1900,
+   "y": 1340,
+   "w": 40,
+   "h": 420
+  },
+  {
+   "x": 2400,
+   "y": 620,
+   "w": 40,
+   "h": 580
+  },
+  {
+   "x": 2580,
+   "y": 620,
+   "w": 40,
+   "h": 680
+  },
+  {
+   "x": 2360,
+   "y": 470,
+   "w": 280,
+   "h": 32
+  },
+  {
+   "x": 2620,
+   "y": 620,
+   "w": 360,
+   "h": 100
+  },
+  {
+   "x": 3130,
+   "y": 620,
+   "w": 300,
+   "h": 100
+  },
+  {
+   "x": 3730,
+   "y": 620,
+   "w": 440,
+   "h": 1240
+  },
+  {
+   "x": 4170,
+   "y": 620,
+   "w": 520,
+   "h": 100
+  },
+  {
+   "x": 1770,
+   "y": 1860,
+   "w": 880,
+   "h": 140
+  },
+  {
+   "x": 2840,
+   "y": 1860,
+   "w": 890,
+   "h": 140
+  },
+  {
+   "x": 2250,
+   "y": 1775,
+   "w": 70,
+   "h": 32
+  },
+  {
+   "x": 2350,
+   "y": 1690,
+   "w": 260,
+   "h": 32
+  },
+  {
+   "x": 3150,
+   "y": 1770,
+   "w": 100,
+   "h": 32
+  },
+  {
+   "x": 3290,
+   "y": 1680,
+   "w": 100,
+   "h": 32
+  },
+  {
+   "x": 3430,
+   "y": 1590,
+   "w": 100,
+   "h": 32
+  },
+  {
+   "x": 3590,
+   "y": 1500,
+   "w": 140,
+   "h": 360
+  },
+  {
+   "x": 3550,
+   "y": 640,
+   "w": 40,
+   "h": 760
+  },
+  {
+   "x": 4830,
+   "y": 540,
+   "w": 140,
+   "h": 32
+  },
+  {
+   "x": 5020,
+   "y": 450,
+   "w": 140,
+   "h": 32
+  },
+  {
+   "x": 5210,
+   "y": 370,
+   "w": 140,
+   "h": 32
+  },
+  {
+   "x": 5400,
+   "y": 300,
+   "w": 540,
+   "h": 40
+  },
+  {
+   "x": 6090,
+   "y": 300,
+   "w": 340,
+   "h": 40
+  },
+  {
+   "x": 5990,
+   "y": 210,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 6150,
+   "y": 120,
+   "w": 200,
+   "h": 32
+  },
+  {
+   "x": 6580,
+   "y": 300,
+   "w": 40,
+   "h": 700
+  },
+  {
+   "x": 6760,
+   "y": 300,
+   "w": 40,
+   "h": 800
+  },
+  {
+   "x": 6800,
+   "y": 300,
+   "w": 300,
+   "h": 40
+  },
+  {
+   "x": 7120,
+   "y": 300,
+   "w": 220,
+   "h": 40
+  },
+  {
+   "x": 7600,
+   "y": 240,
+   "w": 170,
+   "h": 32
+  },
+  {
+   "x": 7800,
+   "y": 150,
+   "w": 180,
+   "h": 32
+  },
+  {
+   "x": 4870,
+   "y": 1100,
+   "w": 460,
+   "h": 100
+  },
+  {
+   "x": 5470,
+   "y": 1100,
+   "w": 300,
+   "h": 100
+  },
+  {
+   "x": 6050,
+   "y": 1100,
+   "w": 750,
+   "h": 100
+  },
+  {
+   "x": 4150,
+   "y": 40,
+   "w": 20,
+   "h": 480
+  },
+  {
+   "x": 7000,
+   "y": 40,
+   "w": 20,
+   "h": 160
+  },
+  {
+   "x": 4690,
+   "y": 1860,
+   "w": 2170,
+   "h": 140
+  },
+  {
+   "x": 4650,
+   "y": 1200,
+   "w": 40,
+   "h": 800
+  },
+  {
+   "x": 6820,
+   "y": 1200,
+   "w": 40,
+   "h": 800
+  },
+  {
+   "x": 4730,
+   "y": 1766,
+   "w": 520,
+   "h": 32
+  },
+  {
+   "x": 5930,
+   "y": 1780,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5790,
+   "y": 1680,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5930,
+   "y": 1580,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5790,
+   "y": 1480,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5930,
+   "y": 1380,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5790,
+   "y": 1280,
+   "w": 110,
+   "h": 32
+  },
+  {
+   "x": 5930,
+   "y": 1180,
+   "w": 110,
+   "h": 32
+  }
+ ],
+ "doors": [
+  {
+   "id": "d1",
+   "x": 4150,
+   "y": 520,
+   "w": 20,
+   "h": 100,
+   "art": {
+    "src": "assets/props/L18_hatch_d1.png",
+    "x": 4110,
+    "y": 521,
+    "w": 100,
+    "h": 98
+   }
+  },
+  {
+   "id": "d2",
+   "x": 7000,
+   "y": 200,
+   "w": 20,
+   "h": 100,
+   "art": {
+    "src": "assets/props/L18_hatch_d2.png",
+    "x": 6960,
+    "y": 201,
+    "w": 100,
+    "h": 98
+   }
+  }
+ ],
+ "switches": [
+  {
+   "x": 2480,
+   "y": 1660,
+   "w": 30,
+   "h": 30,
+   "opens": "d1",
+   "art": {
+    "src": "assets/props/V5_switch_0.png",
+    "x": 2468,
+    "y": 1644,
+    "w": 54,
+    "h": 49
+   }
+  },
+  {
+   "x": 4900,
+   "y": 1070,
+   "w": 30,
+   "h": 30,
+   "opens": "d2",
+   "art": {
+    "src": "assets/props/V5_switch_1.png",
+    "x": 4888,
+    "y": 1044,
+    "w": 54,
+    "h": 59
+   }
+  }
+ ],
+ "enemies": [
+  {
+   "type": "patroller",
+   "x": 800,
+   "y": 1270,
+   "patrolMin": 740,
+   "patrolMax": 1060,
+   "facing": 1
+  },
+  {
+   "type": "patroller",
+   "x": 2000,
+   "y": 1830,
+   "patrolMin": 1960,
+   "patrolMax": 2230,
+   "facing": 1
+  },
+  {
+   "type": "patroller",
+   "x": 3850,
+   "y": 590,
+   "patrolMin": 3790,
+   "patrolMax": 4090,
+   "facing": 1
+  },
+  {
+   "type": "patroller",
+   "x": 5100,
+   "y": 1070,
+   "patrolMin": 5050,
+   "patrolMax": 5300,
+   "facing": 1
+  },
+  {
+   "type": "patroller",
+   "x": 5600,
+   "y": 270,
+   "patrolMin": 5520,
+   "patrolMax": 5900,
+   "facing": 1
+  },
+  {
+   "type": "patroller",
+   "x": 6300,
+   "y": 1070,
+   "patrolMin": 6290,
+   "patrolMax": 6550,
+   "facing": 1
+  },
+  {
+   "type": "patroller",
+   "x": 6250,
+   "y": 1830,
+   "patrolMin": 6130,
+   "patrolMax": 6480,
+   "facing": -1
+  }
+ ],
+ "checkpoints": [
+  {
+   "id": 1,
+   "x": 880,
+   "y": 1260,
+   "respawnX": 880,
+   "respawnY": 1260
+  },
+  {
+   "id": 2,
+   "x": 1480,
+   "y": 1260,
+   "respawnX": 1480,
+   "respawnY": 1260
+  },
+  {
+   "id": 3,
+   "x": 1760,
+   "y": 820,
+   "respawnX": 1760,
+   "respawnY": 820
+  },
+  {
+   "id": 4,
+   "x": 2050,
+   "y": 1260,
+   "respawnX": 2050,
+   "respawnY": 1260
+  },
+  {
+   "id": 5,
+   "x": 2700,
+   "y": 580,
+   "respawnX": 2700,
+   "respawnY": 580
+  },
+  {
+   "id": 6,
+   "x": 3250,
+   "y": 580,
+   "respawnX": 3250,
+   "respawnY": 580
+  },
+  {
+   "id": 7,
+   "x": 2060,
+   "y": 1820,
+   "respawnX": 2060,
+   "respawnY": 1820
+  },
+  {
+   "id": 8,
+   "x": 3760,
+   "y": 580,
+   "respawnX": 3760,
+   "respawnY": 580
+  },
+  {
+   "id": 9,
+   "x": 4300,
+   "y": 580,
+   "respawnX": 4300,
+   "respawnY": 580
+  },
+  {
+   "id": 10,
+   "x": 4950,
+   "y": 1060,
+   "respawnX": 4950,
+   "respawnY": 1060
+  },
+  {
+   "id": 11,
+   "x": 5460,
+   "y": 260,
+   "respawnX": 5460,
+   "respawnY": 260
+  },
+  {
+   "id": 12,
+   "x": 6220,
+   "y": 80,
+   "respawnX": 6220,
+   "respawnY": 80
+  },
+  {
+   "id": 13,
+   "x": 6850,
+   "y": 260,
+   "respawnX": 6850,
+   "respawnY": 260
+  },
+  {
+   "id": 14,
+   "x": 7640,
+   "y": 200,
+   "respawnX": 7640,
+   "respawnY": 200
+  }
+ ],
+ "id": "01",
+ "background": "#1b3a40",
+ "platformColor": "#4a6a74",
+ "next": "02",
+ "backgroundImage": "assets/backgrounds/rw_level01_bg.jpg",
+ "props": [
+  {
+   "src": "assets/props/rw_pier_S0.png",
+   "x": 0,
+   "y": 1495,
+   "w": 500,
+   "h": 520
+  },
+  {
+   "src": "assets/props/rw_pier_D1.png",
+   "x": 690,
+   "y": 1495,
+   "w": 400,
+   "h": 520
+  },
+  {
+   "src": "assets/props/rw_pier_D2.png",
+   "x": 1260,
+   "y": 1530,
+   "w": 340,
+   "h": 520
+  },
+  {
+   "src": "assets/props/rw_slab_U1.png",
+   "x": 2614,
+   "y": 706,
+   "w": 372,
+   "h": 64
+  },
+  {
+   "src": "assets/props/rw_slab_U2.png",
+   "x": 3124,
+   "y": 712,
+   "w": 312,
+   "h": 64
+  },
+  {
+   "src": "assets/props/rw_slab_U4.png",
+   "x": 4166,
+   "y": 850,
+   "w": 530,
+   "h": 80
+  },
+  {
+   "src": "assets/props/rw_rods_SK1.png",
+   "x": 5408,
+   "y": 40,
+   "w": 514,
+   "h": 266
+  },
+  {
+   "src": "assets/props/rw_rods_SK2.png",
+   "x": 6098,
+   "y": 40,
+   "w": 324,
+   "h": 266
+  },
+  {
+   "src": "assets/props/rw_rods_OD.png",
+   "x": 6153,
+   "y": 40,
+   "w": 194,
+   "h": 86
+  },
+  {
+   "src": "assets/props/rw_rods_SW3.png",
+   "x": 6868,
+   "y": 40,
+   "w": 229,
+   "h": 266
+  },
+  {
+   "src": "assets/props/rw_rods_SW4.png",
+   "x": 7128,
+   "y": 40,
+   "w": 204,
+   "h": 266
+  },
+  {
+   "src": "assets/props/rw_rods_F2.png",
+   "x": 7603,
+   "y": 40,
+   "w": 164,
+   "h": 206
+  },
+  {
+   "src": "assets/props/rw_rods_CE1.png",
+   "x": 2368,
+   "y": 40,
+   "w": 264,
+   "h": 436
+  },
+  {
+   "src": "assets/props/rw_rods_A4.png",
+   "x": 973,
+   "y": 792,
+   "w": 514,
+   "h": 244
+  },
+  {
+   "src": "assets/props/rw_tower_led.png",
+   "x": 5782,
+   "y": 1168,
+   "w": 270,
+   "h": 698
+  },
+  {
+   "src": "assets/props/L18_L_S0.png",
+   "x": -11,
+   "y": 1302,
+   "w": 542,
+   "h": 202
+  },
+  {
+   "src": "assets/props/L18_L_D1.png",
+   "x": 669,
+   "y": 1302,
+   "w": 442,
+   "h": 199
+  },
+  {
+   "src": "assets/props/L18_L_D2.png",
+   "x": 1239,
+   "y": 1302,
+   "w": 382,
+   "h": 237
+  },
+  {
+   "src": "assets/props/rw_shelf_A1.png",
+   "x": 444,
+   "y": 1223,
+   "w": 142,
+   "h": 60
+  },
+  {
+   "src": "assets/props/rw_shelf_A2.png",
+   "x": 594,
+   "y": 1118,
+   "w": 112,
+   "h": 60
+  },
+  {
+   "src": "assets/props/rw_shelf_A3.png",
+   "x": 774,
+   "y": 1028,
+   "w": 112,
+   "h": 60
+  },
+  {
+   "src": "assets/props/L18_L_A4.png",
+   "x": 949,
+   "y": 1031,
+   "w": 562,
+   "h": 152
+  },
+  {
+   "src": "assets/props/rw_shelf_A5.png",
+   "x": 1524,
+   "y": 948,
+   "w": 122,
+   "h": 60
+  },
+  {
+   "src": "assets/props/rw_shelf_AN.png",
+   "x": 1684,
+   "y": 858,
+   "w": 232,
+   "h": 60
+  },
+  {
+   "src": "assets/props/L18_L_D3.png",
+   "x": 1888,
+   "y": 1301,
+   "w": 743,
+   "h": 200
+  },
+  {
+   "src": "assets/props/V5_pil_LW1.png",
+   "x": 1730,
+   "y": 1380,
+   "w": 40,
+   "h": 480
+  },
+  {
+   "src": "assets/props/V5_pil_RW1.png",
+   "x": 1900,
+   "y": 1340,
+   "w": 40,
+   "h": 420
+  },
+  {
+   "src": "assets/props/V5_pil_W1L.png",
+   "x": 2400,
+   "y": 620,
+   "w": 40,
+   "h": 580
+  },
+  {
+   "src": "assets/props/V5_pil_W1R.png",
+   "x": 2580,
+   "y": 620,
+   "w": 40,
+   "h": 680
+  },
+  {
+   "src": "assets/props/L18_L_CE1.png",
+   "x": 2350,
+   "y": 471,
+   "w": 301,
+   "h": 61
+  },
+  {
+   "src": "assets/props/L18_L_U1.png",
+   "x": 2609,
+   "y": 588,
+   "w": 382,
+   "h": 125
+  },
+  {
+   "src": "assets/props/L18_L_U2.png",
+   "x": 3119,
+   "y": 622,
+   "w": 322,
+   "h": 155
+  },
+  {
+   "src": "assets/props/rw_pier_U3.png",
+   "x": 3722,
+   "y": 618,
+   "w": 456,
+   "h": 1250
+  },
+  {
+   "src": "assets/props/L18_L_U4.png",
+   "x": 4159,
+   "y": 522,
+   "w": 542,
+   "h": 339
+  },
+  {
+   "src": "assets/props/L18_L_DFa.png",
+   "x": 1755,
+   "y": 1854,
+   "w": 910,
+   "h": 154
+  },
+  {
+   "src": "assets/props/L18_L_DFb.png",
+   "x": 2825,
+   "y": 1854,
+   "w": 920,
+   "h": 154
+  },
+  {
+   "src": "assets/props/rw_step_PS1.png",
+   "x": 2245,
+   "y": 1772,
+   "w": 80,
+   "h": 91
+  },
+  {
+   "src": "assets/props/rw_stand_PA.png",
+   "x": 2344,
+   "y": 1688,
+   "w": 272,
+   "h": 178
+  },
+  {
+   "src": "assets/props/rw_step_ST1.png",
+   "x": 3145,
+   "y": 1767,
+   "w": 110,
+   "h": 96
+  },
+  {
+   "src": "assets/props/rw_step_ST2.png",
+   "x": 3285,
+   "y": 1677,
+   "w": 110,
+   "h": 186
+  },
+  {
+   "src": "assets/props/rw_step_ST3.png",
+   "x": 3425,
+   "y": 1587,
+   "w": 110,
+   "h": 276
+  },
+  {
+   "src": "assets/props/rw_block_FR2.png",
+   "x": 3585,
+   "y": 1496,
+   "w": 150,
+   "h": 372
+  },
+  {
+   "src": "assets/props/V5_pil_LW2.png",
+   "x": 3550,
+   "y": 640,
+   "w": 40,
+   "h": 760
+  },
+  {
+   "src": "assets/props/rw_hang_V1.png",
+   "x": 4825,
+   "y": 40,
+   "w": 150,
+   "h": 540
+  },
+  {
+   "src": "assets/props/rw_hang_V2.png",
+   "x": 5015,
+   "y": 40,
+   "w": 150,
+   "h": 450
+  },
+  {
+   "src": "assets/props/rw_hang_V3.png",
+   "x": 5205,
+   "y": 40,
+   "w": 150,
+   "h": 370
+  },
+  {
+   "src": "assets/props/L18_L_SK1.png",
+   "x": 5389,
+   "y": 301,
+   "w": 562,
+   "h": 152
+  },
+  {
+   "src": "assets/props/L18_L_SK2.png",
+   "x": 6080,
+   "y": 301,
+   "w": 361,
+   "h": 73
+  },
+  {
+   "src": "assets/props/rw_hang_OS.png",
+   "x": 5985,
+   "y": 40,
+   "w": 120,
+   "h": 210
+  },
+  {
+   "src": "assets/props/L18_L_OD.png",
+   "x": 6140,
+   "y": 122,
+   "w": 221,
+   "h": 45
+  },
+  {
+   "src": "assets/props/V5_pil_LW3.png",
+   "x": 6580,
+   "y": 300,
+   "w": 40,
+   "h": 700
+  },
+  {
+   "src": "assets/props/V5_pil_RW3.png",
+   "x": 6760,
+   "y": 300,
+   "w": 40,
+   "h": 800
+  },
+  {
+   "src": "assets/props/L18_L_SW3.png",
+   "x": 6790,
+   "y": 301,
+   "w": 321,
+   "h": 65
+  },
+  {
+   "src": "assets/props/L18_L_SW4.png",
+   "x": 7110,
+   "y": 301,
+   "w": 241,
+   "h": 49
+  },
+  {
+   "src": "assets/props/L18_L_F2.png",
+   "x": 7590,
+   "y": 242,
+   "w": 191,
+   "h": 39
+  },
+  {
+   "src": "assets/props/L18_L_F3.png",
+   "x": 7790,
+   "y": 152,
+   "w": 201,
+   "h": 41
+  },
+  {
+   "src": "assets/props/rw_slab_SH1.png",
+   "x": 4862,
+   "y": 1096,
+   "w": 476,
+   "h": 114
+  },
+  {
+   "src": "assets/props/rw_slab_SH2.png",
+   "x": 5462,
+   "y": 1096,
+   "w": 316,
+   "h": 114
+  },
+  {
+   "src": "assets/props/rw_slab_SH3.png",
+   "x": 6042,
+   "y": 1096,
+   "w": 766,
+   "h": 114
+  },
+  {
+   "src": "assets/props/V5_lintel_4150.png",
+   "x": 4150,
+   "y": 40,
+   "w": 20,
+   "h": 480
+  },
+  {
+   "src": "assets/props/V5_lintel_7000.png",
+   "x": 7000,
+   "y": 40,
+   "w": 20,
+   "h": 160
+  },
+  {
+   "src": "assets/props/L18_dec_mach_intake.png",
+   "x": 325,
+   "y": 1172,
+   "w": 150,
+   "h": 132
+  },
+  {
+   "src": "assets/props/L18_dec_term_catwalk.png",
+   "x": 1110,
+   "y": 932,
+   "w": 90,
+   "h": 102
+  },
+  {
+   "src": "assets/props/L18_dec_pump_alcove.png",
+   "x": 2380,
+   "y": 1597,
+   "w": 80,
+   "h": 97
+  },
+  {
+   "src": "assets/props/L18_dec_mach_U3.png",
+   "x": 3975,
+   "y": 388,
+   "w": 120,
+   "h": 236
+  },
+  {
+   "src": "assets/props/L18_dec_pump_F2.png",
+   "x": 7620,
+   "y": 159,
+   "w": 70,
+   "h": 85
+  },
+  {
+   "src": "assets/props/V5_vent_glow.png",
+   "x": 7740,
+   "y": -41,
+   "w": 260,
+   "h": 260
+  },
+  {
+   "src": "assets/props/V5_vent_shadow.png",
+   "x": 7815,
+   "y": 128,
+   "w": 114,
+   "h": 21
+  },
+  {
+   "src": "assets/props/L18_dec_vent_img.png",
+   "x": 7810,
+   "y": 28,
+   "w": 120,
+   "h": 116
+  },
+  {
+   "src": "assets/props/L18_D_floor.png",
+   "x": 4675,
+   "y": 1854,
+   "w": 2200,
+   "h": 154
+  },
+  {
+   "src": "assets/props/L18_D_wall0.png",
+   "x": 4642,
+   "y": 1198,
+   "w": 56,
+   "h": 810
+  },
+  {
+   "src": "assets/props/L18_D_wall1.png",
+   "x": 6812,
+   "y": 1198,
+   "w": 56,
+   "h": 810
+  },
+  {
+   "src": "assets/props/L18_D_crawl.png",
+   "x": 4715,
+   "y": 1756,
+   "w": 550,
+   "h": 50
+  },
+  {
+   "src": "assets/props/L18_D_led0.png",
+   "x": 5920,
+   "y": 1782,
+   "w": 130,
+   "h": 27
+  },
+  {
+   "src": "assets/props/L18_D_led1.png",
+   "x": 5780,
+   "y": 1682,
+   "w": 130,
+   "h": 27
+  },
+  {
+   "src": "assets/props/L18_D_led2.png",
+   "x": 5920,
+   "y": 1582,
+   "w": 130,
+   "h": 27
+  },
+  {
+   "src": "assets/props/L18_D_led3.png",
+   "x": 5780,
+   "y": 1482,
+   "w": 130,
+   "h": 27
+  },
+  {
+   "src": "assets/props/L18_D_led4.png",
+   "x": 5920,
+   "y": 1382,
+   "w": 130,
+   "h": 27
+  },
+  {
+   "src": "assets/props/L18_D_led5.png",
+   "x": 5780,
+   "y": 1282,
+   "w": 130,
+   "h": 27
+  },
+  {
+   "src": "assets/props/L18_D_led6.png",
+   "x": 5920,
+   "y": 1182,
+   "w": 130,
+   "h": 27
+  },
+  {
+   "src": "assets/props/L18_sh_72.png",
+   "x": 314,
+   "y": 1288,
+   "w": 172,
+   "h": 24
+  },
+  {
+   "src": "assets/props/L18_sh_73.png",
+   "x": 1103,
+   "y": 1018,
+   "w": 103,
+   "h": 24
+  },
+  {
+   "src": "assets/props/L18_sh_74.png",
+   "x": 2374,
+   "y": 1678,
+   "w": 92,
+   "h": 24
+  },
+  {
+   "src": "assets/props/L18_sh_77.png",
+   "x": 3966,
+   "y": 608,
+   "w": 138,
+   "h": 24
+  },
+  {
+   "src": "assets/props/L18_sh_83.png",
+   "x": 7615,
+   "y": 228,
+   "w": 80,
+   "h": 24
+  }
+ ],
+ "fgProps": [
+  {
+   "src": "assets/props/L18_fg_1.png",
+   "x": 2330,
+   "y": 1762,
+   "w": 52,
+   "h": 252
+  },
+  {
+   "src": "assets/props/L18_fg_4.png",
+   "x": 3640,
+   "y": 1723,
+   "w": 60,
+   "h": 291
+  },
+  {
+   "src": "assets/props/L18_fg_5.png",
+   "x": 4940,
+   "y": 1684,
+   "w": 68,
+   "h": 330
+  },
+  {
+   "src": "assets/props/L18_fg_7.png",
+   "x": 6540,
+   "y": 1684,
+   "w": 68,
+   "h": 330
+  }
+ ],
+ "hideGoalFlag": true,
+ "bgParallax": 1
+}

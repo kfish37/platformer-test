@@ -383,7 +383,7 @@
    "w": 20,
    "h": 100,
    "art": {
-    "src": "assets/props/L18_hatch_d1.png",
+    "src": "assets/candidate_rework/cand_p2_door_d1.png",
     "x": 4110,
     "y": 521,
     "w": 100,
@@ -397,7 +397,7 @@
    "w": 20,
    "h": 100,
    "art": {
-    "src": "assets/props/L18_hatch_d2.png",
+    "src": "assets/candidate_rework/cand_p2_door_d2.png",
     "x": 6960,
     "y": 201,
     "w": 100,
@@ -597,830 +597,886 @@
  "background": "#1b3a40",
  "platformColor": "#4a6a74",
  "next": "02",
- "backgroundImage": "assets/backgrounds/level01_v6_bg.jpg",
+ "backgroundImage": "assets/candidate_rework/cand_p2_level01_bg.jpg",
  "props": [
   {
-   "src": "assets/props/L18_drain_0.png",
-   "x": 1980,
-   "y": 1500,
-   "w": 250,
-   "h": 294
+   "src": "assets/candidate_rework/cand_p2_labfloor_0_1300.png",
+   "x": 0,
+   "y": 1300,
+   "w": 520,
+   "h": 700
   },
   {
-   "src": "assets/props/L18_drain_1.png",
-   "x": 2085,
-   "y": 1735,
-   "w": 60,
-   "h": 191
-  },
-  {
-   "src": "assets/props/L18_drain_2.png",
-   "x": 2680,
-   "y": 1560,
-   "w": 300,
-   "h": 201
-  },
-  {
-   "src": "assets/props/L18_drain_3.png",
-   "x": 2700,
-   "y": 1330,
+   "src": "assets/candidate_rework/cand_p2_labfloor_680_1300.png",
+   "x": 680,
+   "y": 1300,
    "w": 420,
-   "h": 308
+   "h": 700
   },
   {
-   "src": "assets/props/L18_drain_4.png",
-   "x": 3250,
-   "y": 1470,
-   "w": 100,
-   "h": 121
+   "src": "assets/candidate_rework/cand_p2_labfloor_1250_1300.png",
+   "x": 1250,
+   "y": 1300,
+   "w": 360,
+   "h": 700
   },
   {
-   "src": "assets/props/L18_drain_5.png",
-   "x": 3480,
-   "y": 1250,
-   "w": 230,
-   "h": 270
+   "src": "assets/candidate_rework/cand_p2_shadow_114.png",
+   "x": 144,
+   "y": 1288,
+   "w": 114,
+   "h": 24
   },
   {
-   "src": "assets/props/L18_drain_6.png",
-   "x": 5780,
-   "y": 860,
-   "w": 300,
-   "h": 201
+   "src": "assets/candidate_rework/cand_p2_cabinet_150.png",
+   "x": 150,
+   "y": 1072,
+   "w": 102,
+   "h": 230
   },
   {
-   "src": "assets/props/L18_drain_7.png",
-   "x": 6330,
-   "y": 640,
-   "w": 440,
-   "h": 323
+   "src": "assets/candidate_rework/cand_p2_shadow_105.png",
+   "x": 1424,
+   "y": 1288,
+   "w": 105,
+   "h": 24
   },
   {
-   "src": "assets/props/L18_drain_8.png",
-   "x": 5330,
-   "y": 820,
-   "w": 220,
-   "h": 258
+   "src": "assets/candidate_rework/cand_p2_cabinet_1430.png",
+   "x": 1430,
+   "y": 1092,
+   "w": 93,
+   "h": 210
   },
   {
-   "src": "assets/props/L18_drain_9.png",
-   "x": 5430,
-   "y": 1000,
-   "w": 60,
-   "h": 191
+   "src": "assets/candidate_rework/cand_p2_shadow_341.png",
+   "x": 714,
+   "y": 1288,
+   "w": 341,
+   "h": 24
   },
   {
-   "src": "assets/props/L18_D_dec0.png",
-   "x": 4780,
-   "y": 1590,
-   "w": 240,
-   "h": 282
-  },
-  {
-   "src": "assets/props/L18_D_dec1.png",
-   "x": 5360,
-   "y": 1720,
-   "w": 70,
-   "h": 223
-  },
-  {
-   "src": "assets/props/L18_D_dec2.png",
-   "x": 5480,
-   "y": 1250,
-   "w": 440,
-   "h": 323
-  },
-  {
-   "src": "assets/props/L18_D_dec3.png",
-   "x": 6190,
-   "y": 1580,
-   "w": 230,
-   "h": 270
-  },
-  {
-   "src": "assets/props/L18_D_dec4.png",
-   "x": 6500,
-   "y": 1640,
-   "w": 280,
-   "h": 188
-  },
-  {
-   "src": "assets/props/L18_D_dec5.png",
-   "x": 6420,
-   "y": 1480,
-   "w": 100,
-   "h": 121
-  },
-  {
-   "src": "assets/props/L18_D_dec6.png",
-   "x": 4900,
-   "y": 1230,
-   "w": 420,
-   "h": 308
-  },
-  {
-   "src": "assets/props/L18_L_S0_plinth.png",
-   "x": -30,
-   "y": 1490,
-   "w": 580,
-   "h": 103
-  },
-  {
-   "src": "assets/props/L18_L_S0.png",
-   "x": -11,
-   "y": 1302,
-   "w": 542,
-   "h": 202
-  },
-  {
-   "src": "assets/props/L18_L_D1_plinth.png",
-   "x": 650,
-   "y": 1487,
-   "w": 480,
-   "h": 86
-  },
-  {
-   "src": "assets/props/L18_L_D1.png",
-   "x": 669,
-   "y": 1302,
-   "w": 442,
+   "src": "assets/candidate_rework/cand_p2_bench.png",
+   "x": 720,
+   "y": 1103,
+   "w": 329,
    "h": 199
   },
   {
-   "src": "assets/props/L18_L_D2_plinth.png",
-   "x": 1220,
-   "y": 1525,
-   "w": 420,
-   "h": 75
+   "src": "assets/candidate_rework/cand_p2_shadow_140.png",
+   "x": 1269,
+   "y": 1288,
+   "w": 140,
+   "h": 24
   },
   {
-   "src": "assets/props/L18_L_D2.png",
-   "x": 1239,
-   "y": 1302,
-   "w": 382,
-   "h": 237
+   "src": "assets/candidate_rework/cand_p2_tank_1290.png",
+   "x": 1275,
+   "y": 1132,
+   "w": 128,
+   "h": 170
   },
   {
-   "src": "assets/props/L18_L_A1.png",
-   "x": 440,
-   "y": 1187,
-   "w": 151,
-   "h": 81
+   "src": "assets/candidate_rework/cand_p2_shadow_140.png",
+   "x": 2684,
+   "y": 608,
+   "w": 140,
+   "h": 24
   },
   {
-   "src": "assets/props/L18_L_A2.png",
-   "x": 590,
-   "y": 1090,
+   "src": "assets/candidate_rework/cand_p2_tank_2700.png",
+   "x": 2690,
+   "y": 452,
+   "w": 128,
+   "h": 170
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_325.png",
+   "x": 3174,
+   "y": 608,
+   "w": 325,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_bench_3180.png",
+   "x": 3180,
+   "y": 433,
+   "w": 313,
+   "h": 189
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_105.png",
+   "x": 3764,
+   "y": 608,
+   "w": 105,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_cabinet_3800.png",
+   "x": 3770,
+   "y": 412,
+   "w": 93,
+   "h": 210
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_156.png",
+   "x": 3984,
+   "y": 608,
+   "w": 156,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_tank_3990.png",
+   "x": 3990,
+   "y": 432,
+   "w": 144,
+   "h": 190
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_118.png",
+   "x": 4954,
+   "y": 1088,
+   "w": 118,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_rack_4960.png",
+   "x": 4960,
+   "y": 852,
+   "w": 106,
+   "h": 250
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_118.png",
+   "x": 5134,
+   "y": 1088,
+   "w": 118,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_rack_5140.png",
+   "x": 5140,
+   "y": 852,
+   "w": 106,
+   "h": 250
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_118.png",
+   "x": 5524,
+   "y": 1088,
+   "w": 118,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_rack_5530.png",
+   "x": 5530,
+   "y": 852,
+   "w": 106,
+   "h": 250
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_118.png",
+   "x": 6114,
+   "y": 1088,
+   "w": 118,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_rack_6120.png",
+   "x": 6120,
+   "y": 852,
+   "w": 106,
+   "h": 250
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_118.png",
+   "x": 6294,
+   "y": 1088,
+   "w": 118,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_rack_6300.png",
+   "x": 6300,
+   "y": 852,
+   "w": 106,
+   "h": 250
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_118.png",
+   "x": 6474,
+   "y": 1088,
+   "w": 118,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_rack_6480.png",
+   "x": 6480,
+   "y": 852,
+   "w": 106,
+   "h": 250
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_133.png",
+   "x": 6624,
+   "y": 1088,
+   "w": 133,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_tank_6620.png",
+   "x": 6630,
+   "y": 942,
    "w": 121,
-   "h": 65
+   "h": 160
   },
   {
-   "src": "assets/props/L18_L_A3.png",
-   "x": 770,
-   "y": 1000,
-   "w": 121,
-   "h": 65
+   "src": "assets/candidate_rework/cand_p2_shadow_123.png",
+   "x": 5294,
+   "y": 1848,
+   "w": 123,
+   "h": 24
   },
   {
-   "src": "assets/props/L18_L_A4.png",
-   "x": 949,
-   "y": 1031,
-   "w": 562,
-   "h": 152
+   "src": "assets/candidate_rework/cand_p2_valve_5280.png",
+   "x": 5300,
+   "y": 1562,
+   "w": 111,
+   "h": 300
   },
   {
-   "src": "assets/props/L18_L_A5.png",
-   "x": 1520,
-   "y": 917,
-   "w": 131,
-   "h": 70
+   "src": "assets/candidate_rework/cand_p2_shadow_123.png",
+   "x": 6654,
+   "y": 1848,
+   "w": 123,
+   "h": 24
   },
   {
-   "src": "assets/props/L18_L_AN.png",
-   "x": 1680,
-   "y": 861,
-   "w": 241,
-   "h": 49
+   "src": "assets/candidate_rework/cand_p2_valve_6650.png",
+   "x": 6660,
+   "y": 1562,
+   "w": 111,
+   "h": 300
   },
   {
-   "src": "assets/props/L18_L_D3.png",
-   "x": 1888,
-   "y": 1301,
-   "w": 743,
+   "src": "assets/candidate_rework/cand_p2_shadow_116.png",
+   "x": 3374,
+   "y": 1848,
+   "w": 116,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_valve_3400.png",
+   "x": 3380,
+   "y": 1582,
+   "w": 104,
+   "h": 280
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shadow_87.png",
+   "x": 7174,
+   "y": 288,
+   "w": 87,
+   "h": 24
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_cabinet_7180.png",
+   "x": 7180,
+   "y": 132,
+   "w": 75,
+   "h": 170
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_lamp_2860_300.png",
+   "x": 2820,
+   "y": 100,
+   "w": 80,
    "h": 200
   },
   {
-   "src": "assets/props/V5_pil_LW1.png",
+   "src": "assets/candidate_rework/cand_p2_lamp_3350_300.png",
+   "x": 3310,
+   "y": 100,
+   "w": 80,
+   "h": 200
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_lamp_4450_300.png",
+   "x": 4410,
+   "y": 100,
+   "w": 80,
+   "h": 200
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_lamp_5180_720.png",
+   "x": 5135,
+   "y": 100,
+   "w": 90,
+   "h": 620
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_lamp_5800_720.png",
+   "x": 5755,
+   "y": 100,
+   "w": 90,
+   "h": 620
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_lamp_6450_720.png",
+   "x": 6405,
+   "y": 100,
+   "w": 90,
+   "h": 620
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_lamp_7500_215.png",
+   "x": 7468,
+   "y": 90,
+   "w": 64,
+   "h": 125
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_lamp_2180_520.png",
+   "x": 2140,
+   "y": 100,
+   "w": 80,
+   "h": 420
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_lamp_330_760.png",
+   "x": 285,
+   "y": 140,
+   "w": 90,
+   "h": 620
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_lamp_1180_760.png",
+   "x": 1135,
+   "y": 140,
+   "w": 90,
+   "h": 620
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_vent_goal.png",
+   "x": 7804,
+   "y": 44,
+   "w": 132,
+   "h": 132
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_panel_2480.png",
+   "x": 2459,
+   "y": 1516,
+   "w": 72,
+   "h": 166
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_panel_4900.png",
+   "x": 4879,
+   "y": 926,
+   "w": 72,
+   "h": 166
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_450_1225.png",
+   "x": 440,
+   "y": 1227,
+   "w": 150,
+   "h": 23
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_600_1120.png",
+   "x": 590,
+   "y": 1122,
+   "w": 120,
+   "h": 18
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_780_1030.png",
+   "x": 770,
+   "y": 1032,
+   "w": 120,
+   "h": 18
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_1530_950.png",
+   "x": 1520,
+   "y": 952,
+   "w": 130,
+   "h": 20
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_1690_860.png",
+   "x": 1680,
+   "y": 862,
+   "w": 240,
+   "h": 37
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_2360_470.png",
+   "x": 2350,
+   "y": 472,
+   "w": 300,
+   "h": 46
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_4830_540.png",
+   "x": 4820,
+   "y": 542,
+   "w": 160,
+   "h": 25
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_5020_450.png",
+   "x": 5010,
+   "y": 452,
+   "w": 160,
+   "h": 25
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_5210_370.png",
+   "x": 5200,
+   "y": 372,
+   "w": 160,
+   "h": 25
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_5990_210.png",
+   "x": 5980,
+   "y": 212,
+   "w": 130,
+   "h": 20
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_6150_120.png",
+   "x": 6140,
+   "y": 122,
+   "w": 220,
+   "h": 34
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_7600_240.png",
+   "x": 7590,
+   "y": 242,
+   "w": 190,
+   "h": 29
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_shelf_7800_150.png",
+   "x": 7790,
+   "y": 152,
+   "w": 200,
+   "h": 31
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_mezz.png",
+   "x": 950,
+   "y": 913,
+   "w": 560,
+   "h": 349
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_cutslab.png",
+   "x": 1900,
+   "y": 1300,
+   "w": 720,
+   "h": 50
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_pillar_1730_1380.png",
    "x": 1730,
    "y": 1380,
    "w": 40,
    "h": 480
   },
   {
-   "src": "assets/props/V5_pil_RW1.png",
+   "src": "assets/candidate_rework/cand_p2_pillar_1900_1340.png",
    "x": 1900,
    "y": 1340,
    "w": 40,
    "h": 420
   },
   {
-   "src": "assets/props/V5_pil_W1L.png",
+   "src": "assets/candidate_rework/cand_p2_pillar_2400_620.png",
    "x": 2400,
    "y": 620,
    "w": 40,
    "h": 580
   },
   {
-   "src": "assets/props/V5_pil_W1R.png",
+   "src": "assets/candidate_rework/cand_p2_pillar_2580_620.png",
    "x": 2580,
    "y": 620,
    "w": 40,
    "h": 680
   },
   {
-   "src": "assets/props/L18_L_CE1.png",
-   "x": 2350,
-   "y": 471,
-   "w": 301,
-   "h": 61
-  },
-  {
-   "src": "assets/props/L18_L_U1_plinth.png",
-   "x": 2590,
-   "y": 699,
-   "w": 420,
-   "h": 75
-  },
-  {
-   "src": "assets/props/L18_L_U1.png",
-   "x": 2609,
-   "y": 588,
-   "w": 382,
-   "h": 125
-  },
-  {
-   "src": "assets/props/L18_L_U2_plinth.png",
-   "x": 3100,
-   "y": 763,
-   "w": 360,
-   "h": 64
-  },
-  {
-   "src": "assets/props/L18_L_U2.png",
-   "x": 3119,
-   "y": 622,
-   "w": 322,
-   "h": 155
-  },
-  {
-   "src": "assets/props/L18_L_U3.png",
-   "x": 3722,
-   "y": 618,
-   "w": 456,
-   "h": 1250
-  },
-  {
-   "src": "assets/props/L18_L_U4_plinth.png",
-   "x": 4140,
-   "y": 847,
-   "w": 580,
-   "h": 103
-  },
-  {
-   "src": "assets/props/L18_L_U4.png",
-   "x": 4159,
-   "y": 522,
-   "w": 542,
-   "h": 339
-  },
-  {
-   "src": "assets/props/L18_L_DFa.png",
-   "x": 1755,
-   "y": 1854,
-   "w": 910,
-   "h": 154
-  },
-  {
-   "src": "assets/props/L18_L_DFb.png",
-   "x": 2825,
-   "y": 1854,
-   "w": 920,
-   "h": 154
-  },
-  {
-   "src": "assets/props/L18_L_PS1.png",
-   "x": 2240,
-   "y": 1753,
-   "w": 90,
-   "h": 48
-  },
-  {
-   "src": "assets/props/L18_L_PA.png",
-   "x": 2340,
-   "y": 1691,
-   "w": 281,
-   "h": 57
-  },
-  {
-   "src": "assets/props/L18_L_ST1.png",
-   "x": 3140,
-   "y": 1740,
-   "w": 121,
-   "h": 65
-  },
-  {
-   "src": "assets/props/L18_L_ST2.png",
-   "x": 3280,
-   "y": 1650,
-   "w": 121,
-   "h": 65
-  },
-  {
-   "src": "assets/props/L18_L_ST3.png",
-   "x": 3420,
-   "y": 1560,
-   "w": 121,
-   "h": 65
-  },
-  {
-   "src": "assets/props/L18_L_FR2.png",
-   "x": 3582,
-   "y": 1498,
-   "w": 156,
-   "h": 370
-  },
-  {
-   "src": "assets/props/V5_pil_LW2.png",
+   "src": "assets/candidate_rework/cand_p2_pillar_3550_640.png",
    "x": 3550,
    "y": 640,
    "w": 40,
    "h": 760
   },
   {
-   "src": "assets/props/L18_L_V1.png",
-   "x": 4820,
-   "y": 499,
-   "w": 161,
-   "h": 86
+   "src": "assets/candidate_rework/cand_p2_pillar_4650_1200.png",
+   "x": 4650,
+   "y": 1200,
+   "w": 40,
+   "h": 800
   },
   {
-   "src": "assets/props/L18_L_V2.png",
-   "x": 5010,
-   "y": 409,
-   "w": 161,
-   "h": 86
+   "src": "assets/candidate_rework/cand_p2_pillar_6820_1200.png",
+   "x": 6820,
+   "y": 1200,
+   "w": 40,
+   "h": 800
   },
   {
-   "src": "assets/props/L18_L_V3.png",
-   "x": 5200,
-   "y": 329,
-   "w": 161,
-   "h": 86
-  },
-  {
-   "src": "assets/props/L18_L_SK1.png",
-   "x": 5389,
-   "y": 301,
-   "w": 562,
-   "h": 152
-  },
-  {
-   "src": "assets/props/L18_L_SK2.png",
-   "x": 6080,
-   "y": 301,
-   "w": 361,
-   "h": 73
-  },
-  {
-   "src": "assets/props/L18_L_OS.png",
-   "x": 5980,
-   "y": 177,
-   "w": 131,
-   "h": 70
-  },
-  {
-   "src": "assets/props/L18_L_OD.png",
-   "x": 6140,
-   "y": 122,
-   "w": 221,
-   "h": 45
-  },
-  {
-   "src": "assets/props/V5_pil_LW3.png",
+   "src": "assets/candidate_rework/cand_p2_pillar_6580_300.png",
    "x": 6580,
    "y": 300,
    "w": 40,
    "h": 700
   },
   {
-   "src": "assets/props/V5_pil_RW3.png",
+   "src": "assets/candidate_rework/cand_p2_pillar_6760_300.png",
    "x": 6760,
    "y": 300,
    "w": 40,
    "h": 800
   },
   {
-   "src": "assets/props/L18_L_SW3.png",
-   "x": 6790,
-   "y": 301,
-   "w": 321,
-   "h": 65
-  },
-  {
-   "src": "assets/props/L18_L_SW4.png",
-   "x": 7110,
-   "y": 301,
-   "w": 241,
-   "h": 49
-  },
-  {
-   "src": "assets/props/L18_L_F2.png",
-   "x": 7590,
-   "y": 242,
-   "w": 191,
-   "h": 39
-  },
-  {
-   "src": "assets/props/L18_L_F3.png",
-   "x": 7790,
-   "y": 152,
-   "w": 201,
-   "h": 41
-  },
-  {
-   "src": "assets/props/L18_L_SH1_plinth.png",
-   "x": 4840,
-   "y": 1390,
-   "w": 520,
-   "h": 93
-  },
-  {
-   "src": "assets/props/L18_L_SH1.png",
-   "x": 4859,
-   "y": 897,
-   "w": 482,
-   "h": 507
-  },
-  {
-   "src": "assets/props/L18_L_SH2_plinth.png",
-   "x": 5440,
-   "y": 1287,
-   "w": 360,
-   "h": 64
-  },
-  {
-   "src": "assets/props/L18_L_SH2.png",
-   "x": 5459,
-   "y": 1102,
-   "w": 322,
-   "h": 199
-  },
-  {
-   "src": "assets/props/L18_L_SH3_plinth.png",
-   "x": 6020,
-   "y": 1375,
-   "w": 810,
-   "h": 144
-  },
-  {
-   "src": "assets/props/L18_L_SH3.png",
-   "x": 6038,
-   "y": 1101,
-   "w": 773,
-   "h": 288
-  },
-  {
-   "src": "assets/props/V5_lintel_4150.png",
+   "src": "assets/candidate_rework/cand_p2_wall_4150.png",
    "x": 4150,
    "y": 40,
    "w": 20,
    "h": 480
   },
   {
-   "src": "assets/props/V5_lintel_7000.png",
+   "src": "assets/candidate_rework/cand_p2_wall_7000.png",
    "x": 7000,
    "y": 40,
    "w": 20,
    "h": 160
   },
   {
-   "src": "assets/props/L18_dec_mach_intake.png",
-   "x": 325,
-   "y": 1172,
-   "w": 150,
-   "h": 132
+   "src": "assets/candidate_rework/cand_p2_drainfloor_1770.png",
+   "x": 1770,
+   "y": 1860,
+   "w": 880,
+   "h": 140
   },
   {
-   "src": "assets/props/L18_dec_term_catwalk.png",
-   "x": 1110,
-   "y": 932,
-   "w": 90,
-   "h": 102
+   "src": "assets/candidate_rework/cand_p2_drainfloor_2840.png",
+   "x": 2840,
+   "y": 1860,
+   "w": 890,
+   "h": 140
   },
   {
-   "src": "assets/props/L18_dec_pump_alcove.png",
-   "x": 2380,
-   "y": 1597,
-   "w": 80,
-   "h": 97
+   "src": "assets/candidate_rework/cand_p2_drainfloor_4690.png",
+   "x": 4690,
+   "y": 1860,
+   "w": 2170,
+   "h": 140
   },
   {
-   "src": "assets/props/L18_dec_gantry_depths.png",
-   "x": 2940,
-   "y": 1040,
-   "w": 170,
-   "h": 824
+   "src": "assets/candidate_rework/cand_p2_drainstep.png",
+   "x": 3590,
+   "y": 1500,
+   "w": 140,
+   "h": 360
   },
   {
-   "src": "assets/props/L18_dec_term_U1.png",
-   "x": 2800,
-   "y": 511,
-   "w": 100,
-   "h": 113
-  },
-  {
-   "src": "assets/props/L18_dec_mach_U3.png",
-   "x": 3975,
-   "y": 388,
-   "w": 120,
-   "h": 236
-  },
-  {
-   "src": "assets/props/L18_dec_srv_SH1a.png",
-   "x": 5000,
-   "y": 868,
-   "w": 120,
-   "h": 236
-  },
-  {
-   "src": "assets/props/L18_dec_srv_SH1b.png",
-   "x": 5185,
-   "y": 921,
-   "w": 130,
-   "h": 183
-  },
-  {
-   "src": "assets/props/L18_dec_srv_SH2.png",
-   "x": 5550,
-   "y": 868,
-   "w": 120,
-   "h": 236
-  },
-  {
-   "src": "assets/props/L18_dec_mach_SH3.png",
-   "x": 6275,
-   "y": 979,
-   "w": 150,
-   "h": 125
-  },
-  {
-   "src": "assets/props/L18_dec_srv_SH3.png",
-   "x": 6605,
-   "y": 921,
-   "w": 130,
-   "h": 183
-  },
-  {
-   "src": "assets/props/L18_dec_pump_F2.png",
-   "x": 7620,
-   "y": 159,
+   "src": "assets/candidate_rework/cand_p2_grate_2250_1775.png",
+   "x": 2250,
+   "y": 1775,
    "w": 70,
-   "h": 85
+   "h": 58
   },
   {
-   "src": "assets/props/V5_vent_glow.png",
-   "x": 7740,
-   "y": -41,
+   "src": "assets/candidate_rework/cand_p2_grate_2350_1690.png",
+   "x": 2350,
+   "y": 1690,
    "w": 260,
-   "h": 260
+   "h": 58
   },
   {
-   "src": "assets/props/V5_vent_shadow.png",
-   "x": 7815,
-   "y": 128,
-   "w": 114,
-   "h": 21
+   "src": "assets/candidate_rework/cand_p2_grate_3150_1770.png",
+   "x": 3150,
+   "y": 1770,
+   "w": 100,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_dec_vent_img.png",
-   "x": 7810,
-   "y": 28,
-   "w": 120,
-   "h": 116
+   "src": "assets/candidate_rework/cand_p2_grate_3290_1680.png",
+   "x": 3290,
+   "y": 1680,
+   "w": 100,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_floor.png",
-   "x": 4675,
-   "y": 1854,
-   "w": 2200,
-   "h": 154
+   "src": "assets/candidate_rework/cand_p2_grate_3430_1590.png",
+   "x": 3430,
+   "y": 1590,
+   "w": 100,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_wall0.png",
-   "x": 4642,
-   "y": 1198,
-   "w": 56,
-   "h": 810
+   "src": "assets/candidate_rework/cand_p2_grate_4730_1766.png",
+   "x": 4730,
+   "y": 1766,
+   "w": 520,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_wall1.png",
-   "x": 6812,
-   "y": 1198,
-   "w": 56,
-   "h": 810
+   "src": "assets/candidate_rework/cand_p2_led_5930_1780.png",
+   "x": 5930,
+   "y": 1780,
+   "w": 110,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_crawl.png",
-   "x": 4715,
-   "y": 1756,
-   "w": 550,
-   "h": 50
+   "src": "assets/candidate_rework/cand_p2_led_5790_1680.png",
+   "x": 5790,
+   "y": 1680,
+   "w": 110,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_led0.png",
-   "x": 5920,
-   "y": 1782,
-   "w": 130,
-   "h": 27
+   "src": "assets/candidate_rework/cand_p2_led_5930_1580.png",
+   "x": 5930,
+   "y": 1580,
+   "w": 110,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_led1.png",
-   "x": 5780,
-   "y": 1682,
-   "w": 130,
-   "h": 27
+   "src": "assets/candidate_rework/cand_p2_led_5790_1480.png",
+   "x": 5790,
+   "y": 1480,
+   "w": 110,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_led2.png",
-   "x": 5920,
-   "y": 1582,
-   "w": 130,
-   "h": 27
+   "src": "assets/candidate_rework/cand_p2_led_5930_1380.png",
+   "x": 5930,
+   "y": 1380,
+   "w": 110,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_led3.png",
-   "x": 5780,
-   "y": 1482,
-   "w": 130,
-   "h": 27
+   "src": "assets/candidate_rework/cand_p2_led_5790_1280.png",
+   "x": 5790,
+   "y": 1280,
+   "w": 110,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_led4.png",
-   "x": 5920,
-   "y": 1382,
-   "w": 130,
-   "h": 27
+   "src": "assets/candidate_rework/cand_p2_led_5930_1180.png",
+   "x": 5930,
+   "y": 1180,
+   "w": 110,
+   "h": 58
   },
   {
-   "src": "assets/props/L18_D_led5.png",
-   "x": 5780,
-   "y": 1282,
-   "w": 130,
-   "h": 27
+   "src": "assets/candidate_rework/cand_p2_labfloor_2620_620.png",
+   "x": 2620,
+   "y": 620,
+   "w": 360,
+   "h": 108
   },
   {
-   "src": "assets/props/L18_D_led6.png",
-   "x": 5920,
-   "y": 1182,
-   "w": 130,
-   "h": 27
+   "src": "assets/candidate_rework/cand_p2_labfloor_3130_620.png",
+   "x": 3130,
+   "y": 620,
+   "w": 300,
+   "h": 108
   },
   {
-   "src": "assets/props/L18_sh_72.png",
-   "x": 314,
-   "y": 1288,
-   "w": 172,
-   "h": 24
+   "src": "assets/candidate_rework/cand_p2_labfloor_4170_620.png",
+   "x": 4170,
+   "y": 620,
+   "w": 520,
+   "h": 108
   },
   {
-   "src": "assets/props/L18_sh_73.png",
-   "x": 1103,
-   "y": 1018,
-   "w": 103,
-   "h": 24
+   "src": "assets/candidate_rework/cand_p2_block_3730.png",
+   "x": 3730,
+   "y": 620,
+   "w": 440,
+   "h": 1248
   },
   {
-   "src": "assets/props/L18_sh_74.png",
-   "x": 2374,
-   "y": 1678,
-   "w": 92,
-   "h": 24
+   "src": "assets/candidate_rework/cand_p2_labfloor_4870_1100.png",
+   "x": 4870,
+   "y": 1100,
+   "w": 460,
+   "h": 108
   },
   {
-   "src": "assets/props/L18_sh_76.png",
-   "x": 2793,
-   "y": 608,
-   "w": 114,
-   "h": 24
+   "src": "assets/candidate_rework/cand_p2_labfloor_5470_1100.png",
+   "x": 5470,
+   "y": 1100,
+   "w": 300,
+   "h": 108
   },
   {
-   "src": "assets/props/L18_sh_77.png",
-   "x": 3966,
-   "y": 608,
-   "w": 138,
-   "h": 24
+   "src": "assets/candidate_rework/cand_p2_labfloor_6050_1100.png",
+   "x": 6050,
+   "y": 1100,
+   "w": 750,
+   "h": 108
   },
   {
-   "src": "assets/props/L18_sh_78.png",
-   "x": 4991,
-   "y": 1088,
-   "w": 138,
-   "h": 24
+   "src": "assets/candidate_rework/cand_p2_skywalk_5400.png",
+   "x": 5400,
+   "y": 40,
+   "w": 540,
+   "h": 308
   },
   {
-   "src": "assets/props/L18_sh_79.png",
-   "x": 5175,
-   "y": 1088,
-   "w": 149,
-   "h": 24
+   "src": "assets/candidate_rework/cand_p2_skywalk_6090.png",
+   "x": 6090,
+   "y": 40,
+   "w": 340,
+   "h": 308
   },
   {
-   "src": "assets/props/L18_sh_80.png",
-   "x": 5541,
-   "y": 1088,
-   "w": 138,
-   "h": 24
+   "src": "assets/candidate_rework/cand_p2_labfloor_6800_300.png",
+   "x": 6800,
+   "y": 300,
+   "w": 300,
+   "h": 48
   },
   {
-   "src": "assets/props/L18_sh_81.png",
-   "x": 6264,
-   "y": 1088,
-   "w": 172,
-   "h": 24
-  },
-  {
-   "src": "assets/props/L18_sh_82.png",
-   "x": 6595,
-   "y": 1088,
-   "w": 149,
-   "h": 24
-  },
-  {
-   "src": "assets/props/L18_sh_83.png",
-   "x": 7615,
-   "y": 228,
-   "w": 80,
-   "h": 24
+   "src": "assets/candidate_rework/cand_p2_labfloor_7120_300.png",
+   "x": 7120,
+   "y": 300,
+   "w": 220,
+   "h": 48
   }
  ],
  "fgProps": [
   {
-   "src": "assets/props/L18_fg_0.png",
-   "x": 1790,
-   "y": 1704,
-   "w": 64,
-   "h": 310
+   "src": "assets/candidate_rework/cand_p2_fg_hpipe_z1.png",
+   "x": -20,
+   "y": 1470,
+   "w": 1560,
+   "h": 60
   },
   {
-   "src": "assets/props/L18_fg_1.png",
-   "x": 2330,
-   "y": 1762,
+   "src": "assets/candidate_rework/cand_p2_fg_v_z1a.png",
+   "x": 300,
+   "y": 1440,
+   "w": 54,
+   "h": 560
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_fg_v_z1b.png",
+   "x": 1420,
+   "y": 1500,
+   "w": 54,
+   "h": 560
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_fg_hpipe_z2.png",
+   "x": 1770,
+   "y": 1932,
+   "w": 1960,
+   "h": 56
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_fg_v_z2.png",
+   "x": 2700,
+   "y": 1900,
    "w": 52,
-   "h": 252
+   "h": 140
   },
   {
-   "src": "assets/props/L18_fg_2.png",
-   "x": 2940,
-   "y": 1684,
-   "w": 68,
-   "h": 330
+   "src": "assets/candidate_rework/cand_p2_fg_hpipe_z5.png",
+   "x": 4690,
+   "y": 1932,
+   "w": 2200,
+   "h": 56
   },
   {
-   "src": "assets/props/L18_fg_3.png",
-   "x": 3370,
-   "y": 1762,
+   "src": "assets/candidate_rework/cand_p2_fg_v_z5.png",
+   "x": 5600,
+   "y": 1900,
    "w": 52,
-   "h": 252
+   "h": 140
   },
   {
-   "src": "assets/props/L18_fg_4.png",
-   "x": 3640,
-   "y": 1723,
-   "w": 60,
-   "h": 291
+   "src": "assets/candidate_rework/cand_p2_fg_hpipe_z45.png",
+   "x": 4690,
+   "y": 1206,
+   "w": 2140,
+   "h": 52
   },
   {
-   "src": "assets/props/L18_fg_5.png",
-   "x": 4940,
-   "y": 1684,
-   "w": 68,
-   "h": 330
+   "src": "assets/candidate_rework/cand_p2_fg_hpipe_z3.png",
+   "x": 2440,
+   "y": 770,
+   "w": 2240,
+   "h": 56
   },
   {
-   "src": "assets/props/L18_fg_6.png",
-   "x": 5840,
-   "y": 1723,
-   "w": 60,
-   "h": 291
+   "src": "assets/candidate_rework/cand_p2_fg_ceil_z3.png",
+   "x": 2460,
+   "y": 38,
+   "w": 2200,
+   "h": 46
   },
   {
-   "src": "assets/props/L18_fg_7.png",
-   "x": 6540,
-   "y": 1684,
-   "w": 68,
-   "h": 330
+   "src": "assets/candidate_rework/cand_p2_fg_ceil_z46.png",
+   "x": 4700,
+   "y": 38,
+   "w": 1880,
+   "h": 46
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_fg_ceil_z7.png",
+   "x": 6810,
+   "y": 38,
+   "w": 1180,
+   "h": 46
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_fg_drop_3020.png",
+   "x": 3020,
+   "y": 40,
+   "w": 160,
+   "h": 190
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_fg_drop_5080.png",
+   "x": 5080,
+   "y": 40,
+   "w": 160,
+   "h": 230
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_fg_drop_5700.png",
+   "x": 5700,
+   "y": 40,
+   "w": 160,
+   "h": 200
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_fg_drop_6380.png",
+   "x": 6380,
+   "y": 40,
+   "w": 160,
+   "h": 240
+  },
+  {
+   "src": "assets/candidate_rework/cand_p2_fg_drop_7250.png",
+   "x": 7250,
+   "y": 40,
+   "w": 160,
+   "h": 150
   }
  ],
  "hideGoalFlag": true,
- "bgParallax": 0.88
+ "bgParallax": 1
 }
