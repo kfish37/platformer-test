@@ -81,6 +81,32 @@ export const TUNE = {
     fluidDamping: 6, // velocity damping (lower = sloshier)
     fluidInertia: 0.45, // fraction of a velocity change that lags into the body (old: inertia)
     fluidFloorSlide: 0.975, // horizontal velocity kept per substep on the floor (old: 0.92)
+    // squish pass (2026-10-28, Fish: "how his body reacts to movement" + green WALK slime ref): low wide mound,
+    // flat base planted on the floor, top wobbles, creeping crawl (front pushes, rear catches up), rounds into a
+    // blob in the air, pancakes on landing, presses flat on walls. No drips/bubbles/heavy gloss/dash shards.
+    // squish=0 (or ?squish=0) = previous behaviour (droplet body + goo look).
+    squish: 1,
+    squishW: 1.95, // mound width vs hitbox width (drawn wider than the 28 px box)
+    squishH: 1.02, // mound height vs hitbox height (lower than the old 1.5)
+    squishFlat: 0.22, // bottom curve exponent (smaller = flatter, wider contact patch)
+    squishShape: 260, // shape pull toward the mound/blob target (1/s2); stiffer than fluidShape so poses read
+    crawlLen: 70, // px of travel per crawl cycle (front pushes forward, rear catches up); ~3.7 Hz at full run, slow enough for the body to follow
+    crawlAmp: 0.20, // crawl stretch amplitude (fraction of body width) at full run speed
+    crawlHump: 0.03, // top bulk rolls forward during the catch-up half (x body half-width)
+    rearDrag: 0.03, // running: rear sits a little lower and trails (x body height); keep small (wedge!)
+    airRound: 0.80, // how far the mound rounds into a blob in the air (0 = stays a mound, 1 = round)
+    fallTaper: 0.22, // falling: top narrows into a soft teardrop
+    takeoffStretch: 0.24, // vertical stretch at full jump speed (base releases the floor)
+    landSpread: 0.24, // pancake squash on a hard landing (fraction, scaled by impact speed)
+    wallBulge: 0.22, // wall slide: body bulges away from the wall (x body half-width)
+    dashStretch: 0.28, // dash: clean stretch along the dash direction
+    dashTrail: 0.04, // dash: extra drag on the rear (x body half-width)
+    stickyBase: 0.88, // horizontal velocity kept per substep by points touching the floor (lower = stickier)
+    squishDamp: 18, // velocity damping of the squish body (fluidDamping is 6); 8 let a hard landing ring into a flat disc
+    squishEdgeDamp: 20, // neighbour damping in squish mode (fluidEdgeDamp is 14)
+    landKick: 0.18, // share of the landing velocity snap that goes into the body (pancake comes from landSpread)
+    mouthScale: 0.72, // squish: mouth size vs the old face (old grin was oversized on the wide body)
+    shine: 1, // one small wet highlight (0 = off)
 };
 if (typeof location !== "undefined") {
     const qs = new URLSearchParams(location.search);
@@ -89,18 +115,138 @@ if (typeof location !== "undefined") {
         TUNE.fluid = Number(q) ? 1 : 0;
     if (qg !== null)
         TUNE.goo = Number(qg) ? 1 : 0;
+    const qsq = qs.get("squish");
+    if (qsq !== null)
+        TUNE.squish = Number(qsq) ? 1 : 0;
 }
+/** Body size vs hitbox: the squish mound is wider and lower than the old droplet. */
+const BW = () => TUNE.squish ? TUNE.squishW : TUNE.bodyWFrac;
+const BH = () => TUNE.squish ? TUNE.squishH : TUNE.bodyHFrac;
 const sim = {
     init: false, strands: [], trailMs: 0, prevWallSliding: false, prevWallSide: 0, w: 0, h: 0, rest: [], edge: [], pos: [], vel: [], restArea: 1,
     rope: [], ropePrev: [], drips: [],
     prevVx: 0, prevVy: 0, prevX: 0, prevY: 0, prevGrounded: false, airMaxVy: 0,
     runDist: 0, squintMs: 0, wallFxMs: 0, runFxMs: 0, lastMs: 0, landMs: 0, landK: 0, elong: 0, elongDir: 1, prevDashing: false,
     turn: 1, prof: 0,
+    sqAir: 0, sqRun: 0, sqPhase: 0, sqWall: 0, sqWallSide: 1, sqDash: 0, sqDir: 1, sqSx: 1, sqSy: 1,
 };
 // ------------------------------------------------------------------ setup
+/** Squish shape: point i of a low wide mound (air = 0) morphing into a rounder blob (air = 1).
+ *  W = half width, H = full height; local coords, y = 0 is the floor, 0 = top, clockwise. */
+function moundPoint(i, n, W, H, air, fallK) {
+    const th = (i / n) * Math.PI * 2, c = Math.cos(th), s = Math.sin(th);
+    const xs = Math.sign(s) * Math.pow(Math.abs(s), 0.8); // full, slightly boxy sides
+    const mx = W * xs * (1 - 0.16 * Math.max(0, c));
+    const my = c >= 0 ? -H * 0.42 - H * 0.58 * Math.pow(c, 0.9) // dome
+        : -H * 0.42 + H * 0.42 * Math.pow(-c, TUNE.squishFlat); // flat base
+    const bx = W * 0.88 * s * (1 - TUNE.fallTaper * fallK * Math.max(0, c));
+    const by = -H * 0.54 - H * 0.54 * c;
+    return { x: mx + (bx - mx) * air, y: my + (by - my) * air };
+}
+/** Per-frame target outline for the squish body (constant over the substeps). */
+function squishTargets(inp, dt) {
+    const n = TUNE.points, rect = inp.rect;
+    const W = rect.w * BW() / 2, H = rect.h * BH();
+    const t = inp.timeMs;
+    const ez = (cur, tg, rate) => cur + (tg - cur) * Math.min(1, dt * rate);
+    const wall = inp.wallSliding && inp.wallSide !== 0;
+    // base releases the floor quickly on takeoff and re-plants at once on landing
+    const airT = inp.grounded ? 0 : wall ? 0.5 : TUNE.airRound;
+    sim.sqAir = ez(sim.sqAir, airT, inp.grounded ? 18 : 8);
+    const speed = Math.abs(inp.vx);
+    const spK = inp.grounded && !inp.dashing ? Math.min(1, speed / 220) : 0;
+    sim.sqRun = ez(sim.sqRun, spK, spK > sim.sqRun ? 6 : 5);
+    if (inp.grounded)
+        sim.sqPhase += speed * dt / TUNE.crawlLen * Math.PI * 2;
+    sim.sqWall = ez(sim.sqWall, wall ? 1 : 0, wall ? 14 : 9);
+    if (wall)
+        sim.sqWallSide = inp.wallSide;
+    sim.sqDash = ez(sim.sqDash, inp.dashing ? 1 : 0, inp.dashing ? 22 : 9);
+    if (speed > 30)
+        sim.sqDir = inp.vx > 0 ? 1 : -1;
+    else if (speed < 5 && sim.sqRun < 0.05)
+        sim.sqDir = inp.facing;
+    const dir = sim.sqDir;
+    let sx = 1, sy = 1;
+    // breathing: top rises and falls, base stays planted
+    const breath = inp.grounded ? Math.sin(t / 650) * 0.035 * (1 - sim.sqRun) : 0;
+    sy += breath;
+    sx -= breath * 0.7;
+    if (!inp.grounded && !wall && !inp.dashing) {
+        const k = Math.max(-1, Math.min(1, -inp.vy / 650));
+        if (k > 0) {
+            const st = TUNE.takeoffStretch * k;
+            sy *= 1 + st;
+            sx /= Math.sqrt(1 + st * 1.4);
+        }
+        else {
+            const st = 0.10 * -k;
+            sy *= 1 + st;
+            sx /= 1 + st * 0.6;
+        }
+    }
+    if (sim.landMs > 0) {
+        const u = 1 - sim.landMs / TUNE.landMs;
+        const env = Math.sin(u * Math.PI * 1.5) * (1 - u) * TUNE.landSpread * sim.landK;
+        sy *= 1 - env;
+        sx *= 1 + env * 0.9;
+    }
+    // dash: clean stretch along the dash direction
+    if (sim.sqDash > 0.01) {
+        const sp = Math.hypot(inp.vx, inp.vy) || 1, along = inp.dashing ? Math.abs(inp.vx) / sp : 1;
+        const d = TUNE.dashStretch * sim.sqDash;
+        sx *= (1 + d * along) / (1 + d * 0.5 * (1 - along));
+        sy *= (1 + d * (1 - along)) / (1 + d * 0.35 * along);
+    }
+    // crawl: stretch (front pushes ahead, rear stays put) then contract (rear catches up, top rolls forward)
+    const ph = sim.sqPhase;
+    const L = TUNE.crawlAmp * sim.sqRun * (0.5 - 0.5 * Math.cos(ph));
+    const hump = TUNE.crawlHump * sim.sqRun * Math.max(0, -Math.sin(ph));
+    sx *= 1 + L;
+    sy /= 1 + L * 0.75;
+    const fallK = !inp.grounded && inp.vy > 0 ? Math.min(1, inp.vy / 600) : 0;
+    const out = [];
+    for (let i = 0; i < n; i++) {
+        const m = moundPoint(i, n, W, H, sim.sqAir, fallK);
+        let x = m.x * sx, y = m.y * sy;
+        const hF = Math.min(1, Math.max(0, -y / H));
+        const u = Math.max(-1, Math.min(1, m.x / W));
+        const back = Math.max(0, -dir * u);
+        x += dir * W * L * 0.6 * (1 - 0.7 * hF); // the foot pushes ahead first, the top follows
+        y -= back * hF * H * 0.08 * sim.sqRun * Math.max(0, -Math.sin(ph)); // rear bunches up as it catches up
+        x += dir * W * hump * hF * hF; // top bulk rolls forward on the catch-up
+        y += back * Math.sqrt(back) * hF * H * TUNE.rearDrag * sim.sqRun; // rear trails a little lower
+        if (sim.sqWall > 0.01) {
+            const ws = sim.sqWallSide, onWall = Math.max(0, ws * u);
+            x -= ws * W * TUNE.wallBulge * sim.sqWall; // bulge away from the wall
+            y -= onWall * H * 0.10 * sim.sqWall; // wall side drags a bit as he slides down
+        }
+        if (sim.sqDash > 0.01) {
+            x -= dir * back * back * W * TUNE.dashTrail * sim.sqDash;
+            y += (-H * 0.45 * sy - y) * back * 0.08 * sim.sqDash; // rear stays round (a strong pull to mid height makes a point)
+        }
+        if (TUNE.jiggle > 0) {
+            // top wobble only, never lifts the base
+            const rp = Math.sin(i * 0.52 * 6 / Math.max(1, n / 12) + t / 210) + 0.5 * Math.sin(i * 1.3 - t / 330);
+            const wob = 1 + 0.8 * sim.sqRun;
+            y += rp * TUNE.jiggle * H * Math.pow(hF, 1.5) * wob;
+            x += Math.sin(i * 0.9 + t / 260) * TUNE.jiggle * 1.2 * W * hF;
+        }
+        out.push({ x, y });
+    }
+    sim.sqSx = sx;
+    sim.sqSy = sy;
+    return out;
+}
 function buildRest(w, h) {
     const n = TUNE.points, out = [];
-    const W = w * TUNE.bodyWFrac / 2, H = h * TUNE.bodyHFrac / 2;
+    if (TUNE.squish) {
+        const W = w * BW() / 2, H = h * BH();
+        for (let i = 0; i < n; i++)
+            out.push(moundPoint(i, n, W, H, 0, 0));
+        return out;
+    }
+    const W = w * BW() / 2, H = h * BH() / 2;
     for (let i = 0; i < n; i++) {
         const th = (i / n) * Math.PI * 2; // 0 = top, clockwise
         const c = Math.cos(th), s = Math.sin(th);
@@ -167,10 +313,12 @@ function step(inp) {
     const cl = (v) => Math.max(-TUNE.inertiaClamp, Math.min(TUNE.inertiaClamp, v));
     // a dash start/stop is a big velocity snap; let the dash shape do the work instead
     const kick = inp.dashing !== sim.prevDashing ? 0.3 : 1;
-    const dvx = cl(inp.vx - sim.prevVx) * kick, dvy = cl(inp.vy - sim.prevVy) * kick;
+    // the fall-speed snap on landing arrives a frame before 'grounded' flips, so detect it from vy itself
+    const landing = TUNE.squish && sim.prevVy > 150 && inp.vy < sim.prevVy * 0.3 ? TUNE.landKick : 1;
+    const dvx = cl(inp.vx - sim.prevVx) * kick, dvy = cl(inp.vy - sim.prevVy) * kick * landing;
     for (let i = 0; i < n; i++) {
-        const hFrac = Math.min(1, Math.max(0, -sim.rest[i].y / (rect.h * TUNE.bodyHFrac)));
-        const wgt = (TUNE.fluid ? TUNE.fluidInertia : TUNE.inertia) * (inp.grounded ? 0.35 + 0.65 * hFrac : 1);
+        const hFrac = Math.min(1, Math.max(0, -sim.rest[i].y / (rect.h * BH())));
+        const wgt = (TUNE.fluid ? TUNE.fluidInertia : TUNE.inertia) * (inp.grounded ? (TUNE.squish ? 0.04 + 0.96 * hFrac * hFrac : 0.35 + 0.65 * hFrac) : 1);
         sim.vel[i].x -= dvx * wgt;
         sim.vel[i].y -= dvy * wgt;
     }
@@ -205,7 +353,7 @@ function step(inp) {
         elongT = TUNE.dashElong * along;
         sy *= 1 + 0.45 * (1 - along) - 0.06 * along;
     }
-    if (inp.wallSliding)
+    if (inp.wallSliding || TUNE.squish)
         elongT = 0;
     // ease so the streamer stretches out and snaps back like goo
     sim.elong += (elongT - sim.elong) * Math.min(1, dt * (elongT > sim.elong ? 9 : 6));
@@ -216,7 +364,7 @@ function step(inp) {
     const profT = inp.wallSliding ? 0.2 : TUNE.profileIdle + (TUNE.profileRun - TUNE.profileIdle) * spd;
     sim.prof += (profT - sim.prof) * Math.min(1, dt * (profT > sim.prof ? 10 : 4));
     const elong = sim.elong;
-    const bodyW = rect.w * TUNE.bodyWFrac;
+    const bodyW = rect.w * BW();
     if (sim.landMs > 0) {
         // hard landing: squash, then one small rebound
         const u = 1 - sim.landMs / TUNE.landMs;
@@ -225,22 +373,34 @@ function step(inp) {
         sx *= 1 + env * 0.9;
         sim.landMs -= dt * 1000;
     }
-    const lean = inp.grounded ? Math.max(-0.5, Math.min(0.5, inp.vx * TUNE.runLean / 100)) : 0;
-    const bodyH = rect.h * TUNE.bodyHFrac;
-    const wallX = inp.wallSliding && inp.wallSide !== 0 ? inp.wallSide * rect.w * TUNE.bodyWFrac * 0.5 * TUNE.wallFlatten : 0;
+    const lean = inp.grounded && !TUNE.squish ? Math.max(-0.5, Math.min(0.5, inp.vx * TUNE.runLean / 100)) : 0;
+    const bodyH = rect.h * BH();
+    const wallX = inp.wallSliding && inp.wallSide !== 0 ? inp.wallSide * rect.w * BW() * 0.5 * TUNE.wallFlatten : 0;
+    // squish: per-frame target outline + matching edge lengths and area (springs only add wobble)
+    const tgt = TUNE.squish ? squishTargets(inp, dt) : null;
+    const tgtEdge = tgt ? tgt.map((p, i) => { const q = tgt[(i + 1) % n]; return Math.hypot(q.x - p.x, q.y - p.y); }) : null;
+    const tgtArea = tgt ? area(tgt) : 0;
+    if (tgt) {
+        sx = sim.sqSx;
+        sy = sim.sqSy;
+    }
     const sub = Math.max(1, Math.ceil(dt / (1 / 240)));
     const h = dt / sub;
     for (let s = 0; s < sub; s++) {
         // pressure
         const A = area(sim.pos);
         // while streaming, ease off the inflation so the tail can go thin instead of ballooning
-        const press = TUNE.pressure * (TUNE.fluid ? TUNE.fluidPressure : 1) * (1 - 0.65 * Math.min(1, elong)) * (sim.restArea * sx * sy * (1 + elong * 0.04) - A) / sim.restArea;
+        const press = TUNE.pressure * (TUNE.fluid ? TUNE.fluidPressure : 1) * (1 - 0.65 * Math.min(1, elong)) * ((tgt ? tgtArea : sim.restArea * sx * sy * (1 + elong * 0.04)) - A) / sim.restArea;
         for (let i = 0; i < n; i++) {
             const r = sim.rest[i], p = sim.pos[i], v = sim.vel[i];
             const hFrac = -r.y / bodyH;
             let tx = r.x * sx + lean * hFrac * bodyH * 0.6;
             let ty = r.y * sy;
-            if (elong > 0.01) {
+            if (tgt) {
+                tx = tgt[i].x;
+                ty = tgt[i].y;
+            }
+            else if (elong > 0.01) {
                 const u = r.x / (bodyW * 0.5); // -1..1 across the body
                 const back = Math.max(0, -edir * u), front = Math.max(0, edir * u);
                 const low = Math.min(1, hFrac * 1.6); // tail comes off the lower body
@@ -265,7 +425,7 @@ function step(inp) {
                 ty += Math.sin(bk * 7 - t / 70 * edir * edir) * bk * e * bodyH * TUNE.tailWave;
             }
             // jelly surface ripple (strongest on the upper body, never lifts the foot)
-            if (TUNE.jiggle > 0) {
+            if (!tgt && TUNE.jiggle > 0) {
                 const rp = Math.sin(i * 0.52 * 6 / Math.max(1, n / 12) + t / 210) + 0.5 * Math.sin(i * 1.3 - t / 330);
                 ty += rp * TUNE.jiggle * bodyH * Math.min(1, hFrac * 1.4) * (1 - 0.6 * Math.min(1, elong));
                 tx += Math.sin(i * 0.9 + t / 260) * TUNE.jiggle * 0.6 * bodyW * hFrac;
@@ -283,12 +443,17 @@ function step(inp) {
             if (TUNE.fluid) {
                 ks = TUNE.fluidShape + (TUNE.stiffness - TUNE.fluidShape) * 0.6 * Math.min(1, elong);
                 kd = TUNE.fluidDamping;
+                if (tgt) {
+                    ks = TUNE.squishShape;
+                    kd = TUNE.squishDamp;
+                }
+                const edgeDamp = tgt ? TUNE.squishEdgeDamp : TUNE.fluidEdgeDamp;
                 for (const j of [(i + 1) % n, (i - 1 + n) % n]) {
-                    const o = sim.pos[j], rl = sim.edge[j === (i + 1) % n ? i : j] * Math.sqrt(sx * sy);
+                    const o = sim.pos[j], ei = j === (i + 1) % n ? i : j, rl = tgtEdge ? tgtEdge[ei] : sim.edge[ei] * Math.sqrt(sx * sy);
                     const ex = o.x - p.x, ey = o.y - p.y, el = Math.hypot(ex, ey) || 1e-6;
                     const f = TUNE.fluidEdge * (el - rl) / el;
-                    fx += f * ex + TUNE.fluidEdgeDamp * (sim.vel[j].x - v.x);
-                    fy += f * ey + TUNE.fluidEdgeDamp * (sim.vel[j].y - v.y);
+                    fx += f * ex + edgeDamp * (sim.vel[j].x - v.x);
+                    fy += f * ey + edgeDamp * (sim.vel[j].y - v.y);
                 }
                 fy += TUNE.fluidGravity * (inp.grounded ? 1 : 0.15);
             }
@@ -311,7 +476,7 @@ function step(inp) {
                 p.y = 0;
                 if (v.y > 0)
                     v.y = -v.y * (TUNE.fluid ? 0.04 : 0.1);
-                v.x *= TUNE.fluid ? TUNE.fluidFloorSlide : 0.92;
+                v.x *= tgt ? TUNE.stickyBase : TUNE.fluid ? TUNE.fluidFloorSlide : 0.92;
             }
             // wall squash
             if (inp.wallSliding && inp.wallSide !== 0) {
@@ -412,7 +577,7 @@ function step(inp) {
         }
         if (impact > 260) {
             const k = Math.min(1, (impact - 260) / 600);
-            const count = 3 + Math.round(k * 9);
+            const count = TUNE.squish ? 2 + Math.round(k * 3) : 3 + Math.round(k * 9);
             for (let i = 0; i < count; i++) {
                 const dir = i % 2 === 0 ? 1 : -1;
                 spawnDrop(ax + dir * rect.w * 0.35, footY - 3, dir * (60 + Math.random() * 160 * (0.5 + k)), -(120 + Math.random() * 220 * (0.4 + k)), 1.4 + Math.random() * 1.6, Math.random() < 0.15);
@@ -453,7 +618,7 @@ function step(inp) {
         }
     }
     if (!inp.grounded && sim.prevGrounded && inp.vy < -200) {
-        for (let i = 0; i < 4; i++)
+        for (let i = 0; i < (TUNE.squish ? 2 : 4); i++)
             spawnDrop(ax + (Math.random() - 0.5) * rect.w * 0.6, footY - 2, (Math.random() - 0.5) * 80, 40 + Math.random() * 60, 1.2 + Math.random());
         spawnRing(ax, footY, rect.w * 0.7);
     }
@@ -483,7 +648,7 @@ function step(inp) {
             spawnDrop(ax - Math.sign(inp.vx) * rect.w * 0.4, footY - 3, -inp.vx * 0.3 + (Math.random() - 0.5) * 40, -60 - Math.random() * 90, 1.1 + Math.random() * 0.8);
         }
     }
-    if (inp.dashing) {
+    if (inp.dashing && !TUNE.squish) { // squish: no shard sparks
         const back = -Math.sign(inp.vx || 0) * rect.w * 0.45;
         for (let i = 0; i < 2; i++)
             spawnSpark(ax + back + (Math.random() - 0.5) * rect.w * 0.5, rect.y + Math.random() * rect.h, -inp.vx * 0.2 + (Math.random() - 0.5) * 60, -inp.vy * 0.2 + (Math.random() - 0.5) * 60);
@@ -491,7 +656,7 @@ function step(inp) {
     // drips that stretch too far snap off as droplets
     for (const d of sim.drips) {
         const len = Math.hypot(d.tip.x, d.tip.y);
-        if (!inp.grounded && len > d.rest * TUNE.dripSnapLen) {
+        if (!TUNE.squish && !inp.grounded && len > d.rest * TUNE.dripSnapLen) {
             const a = sim.pos[d.anchor];
             spawnDrop(ax + a.x + d.tip.x, ay + a.y + d.tip.y, inp.vx * 0.8 + d.vel.x * 0.3, inp.vy * 0.8 + d.vel.y * 0.3, d.rad * 1.1, d.yellow);
             d.tip.x = 0;
@@ -539,7 +704,7 @@ function bounds() {
 /** The head part of the body: centroid of the upper points, size capped near rest so the
  *  face and cap stay at the front while the back stretches into a streamer. */
 function head(b) {
-    const bodyH = sim.h * TUNE.bodyHFrac, restW = sim.w * TUNE.bodyWFrac;
+    const bodyH = sim.h * BH(), restW = sim.w * BW();
     let sx = 0, cnt = 0;
     for (let i = 0; i < sim.pos.length; i++) {
         if (-sim.rest[i].y > bodyH * 0.55) {
@@ -589,14 +754,15 @@ export function drawSlime(ctx, inp) {
     for (const s of sim.strands)
         drawStrand(ctx, s, ox, oy, rect.h);
     // drips (behind body so they merge into it)
-    for (const d of sim.drips)
-        drawDrip(ctx, d, ox, oy);
+    if (!TUNE.squish)
+        for (const d of sim.drips)
+            drawDrip(ctx, d, ox, oy);
     // goo foot: a wet puddle the body sits in (its bottom outline is hidden below)
     const foot = inp.grounded && TUNE.puddle > 0 ? footSpan() : null;
     if (foot)
         drawPuddle(ctx, ox, oy, foot, rect.w, inp.timeMs);
     // body fill + cel shade + rim light
-    if (TUNE.goo) {
+    if (TUNE.goo && !TUNE.squish) {
         // wet halo: the soft translucent edge of the goop
         smoothClosed(ctx, sim.pos, ox, oy);
         ctx.lineWidth = TUNE.gooRim * 0.7;
@@ -605,7 +771,7 @@ export function drawSlime(ctx, inp) {
     }
     smoothClosed(ctx, sim.pos, ox, oy);
     ctx.fillStyle = SL.body;
-    if (TUNE.goo)
+    if (TUNE.goo && !TUNE.squish)
         ctx.globalAlpha = 0.93;
     ctx.fill();
     ctx.globalAlpha = 1;
@@ -621,7 +787,7 @@ export function drawSlime(ctx, inp) {
     ctx.fillStyle = SL.body;
     ctx.fill();
     ctx.restore();
-    if (TUNE.goo) {
+    if (TUNE.goo && !TUNE.squish) {
         // gel depth: pale top, dense blue bottom, bright translucent rim just inside the outline
         const g = ctx.createLinearGradient(0, oy + b.top, 0, oy + b.bot);
         g.addColorStop(0, "rgba(200,240,255,0.30)");
@@ -649,7 +815,10 @@ export function drawSlime(ctx, inp) {
     }
     // yellow goo cap draped over the top of the head
     drawCap(ctx, ox + sim.pos[0].x * 0.6 + hd.cx * 0.4, oy + b.top, hd.w, hd.h, inp.timeMs);
-    drawJelly(ctx, ox, oy, b, hd, inp.timeMs);
+    if (TUNE.squish)
+        drawShine(ctx, ox, oy, b, hd);
+    else
+        drawJelly(ctx, ox, oy, b, hd, inp.timeMs);
     ctx.restore();
     ctx.save();
     if (foot) {
@@ -698,9 +867,9 @@ function footSpan() {
     return l < r ? { l, r } : null;
 }
 function drawPuddle(ctx, ox, oy, f, pw, tMs) {
-    const spread = pw * (TUNE.goo ? 0.55 : 0.30) * TUNE.puddle;
+    const spread = pw * (TUNE.squish ? 0.10 : TUNE.goo ? 0.55 : 0.30) * TUNE.puddle;
     const cx = ox + (f.l + f.r) / 2, rx = (f.r - f.l) / 2 + spread;
-    const ry = pw * (TUNE.goo ? 0.19 : 0.15) * (1 + 0.08 * Math.sin(tMs / 400));
+    const ry = pw * (TUNE.squish ? 0.07 : TUNE.goo ? 0.19 : 0.15) * (1 + 0.08 * Math.sin(tMs / 400));
     ctx.beginPath();
     ctx.ellipse(cx, oy - 0.3, rx, ry, 0, Math.PI, 0);
     ctx.closePath();
@@ -711,7 +880,7 @@ function drawPuddle(ctx, ox, oy, f, pw, tMs) {
     ctx.beginPath();
     ctx.ellipse(cx, oy - 0.3, rx, ry, 0, Math.PI, 0);
     ctx.stroke();
-    if (TUNE.gloss > 0) {
+    if (TUNE.gloss > 0 && !TUNE.squish) {
         ctx.strokeStyle = "rgba(255,255,255,0.85)";
         ctx.lineWidth = Math.max(0.6, pw * 0.035);
         const s = facingSign;
@@ -745,6 +914,22 @@ function drawStrand(ctx, s, ox, oy, ph) {
     ctx.ellipse(x1, y1, wEnd * 1.6, wEnd * 0.9, Math.atan2(ny, nx), 0, Math.PI * 2);
     ctx.fillStyle = SL.body;
     ctx.fill();
+}
+/** Squish look: flat cel shade + one small wet highlight on the back-upper flank (no bubbles/rim/halo). */
+function drawShine(ctx, ox, oy, b, hd) {
+    if (TUNE.shine <= 0)
+        return;
+    const f = facingSign;
+    ctx.save();
+    ctx.globalAlpha = 0.75;
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineCap = "round";
+    ctx.lineWidth = Math.max(0.8, hd.w * 0.04);
+    const x = ox + hd.cx - f * hd.w * 0.36, y = oy + b.top + b.h * 0.58;
+    ctx.beginPath();
+    ctx.ellipse(x, y, hd.w * 0.10, b.h * 0.16, f * 0.25, f > 0 ? Math.PI * 0.80 : Math.PI * 0.05, f > 0 ? Math.PI * 1.15 : Math.PI * 0.20);
+    ctx.stroke();
+    ctx.restore();
 }
 /** Wet, translucent jelly: inner glow, rising bubbles, rim + specular streaks that follow
  *  the deforming outline. Drawn inside the body clip. */
@@ -1048,10 +1233,11 @@ function drawFace(ctx, inp, cx, cy, bw, bh) {
     ctx.lineWidth = TUNE.outlineW * 0.85;
     const my = ey + r * 1.45;
     const mx = cx + side * bw * 0.20;
+    const mb = TUNE.squish ? bw * TUNE.mouthScale : bw; // mouth size base
     ctx.beginPath();
     if (mouth === "grin") {
         // Sloomoo Rushed: big open grin with a pink tongue, opening toward the front
-        const gw = bw * 0.17, gh = bw * 0.15, gx = mx + dir * a * bw * 0.03, gy = my - bw * 0.05;
+        const gw = mb * 0.17, gh = mb * 0.15, gx = mx + dir * a * mb * 0.03, gy = my - mb * 0.05;
         const grin = () => {
             ctx.beginPath();
             ctx.moveTo(gx - gw, gy);
@@ -1075,20 +1261,20 @@ function drawFace(ctx, inp, cx, cy, bw, bh) {
         ctx.stroke();
     }
     else if (mouth === "smile") {
-        ctx.arc(mx, my - bw * 0.07, bw * 0.09, 0.2 * Math.PI, 0.8 * Math.PI);
+        ctx.arc(mx, my - mb * 0.07, mb * 0.09, 0.2 * Math.PI, 0.8 * Math.PI);
         ctx.stroke();
     }
     else if (mouth === "o") {
-        ctx.ellipse(mx, my, bw * 0.06, bw * 0.08, 0, 0, Math.PI * 2);
+        ctx.ellipse(mx, my, mb * 0.06, mb * 0.08, 0, 0, Math.PI * 2);
         ctx.fillStyle = SL.eyePupil;
         ctx.fill();
         ctx.beginPath();
-        ctx.ellipse(mx, my + bw * 0.04, bw * 0.04, bw * 0.03, 0, 0, Math.PI * 2);
+        ctx.ellipse(mx, my + mb * 0.04, mb * 0.04, mb * 0.03, 0, 0, Math.PI * 2);
         ctx.fillStyle = SL.snoozle;
         ctx.fill();
     }
     else {
-        ctx.arc(mx, my + bw * 0.06, bw * 0.08, 1.2 * Math.PI, 1.8 * Math.PI);
+        ctx.arc(mx, my + mb * 0.06, mb * 0.08, 1.2 * Math.PI, 1.8 * Math.PI);
         ctx.stroke();
     }
 }
@@ -1178,7 +1364,7 @@ if (typeof location !== "undefined") {
         RUSH.enabled = Number(qr) ? 1 : 0;
 }
 const rush = { R: 0, on: false, hist: [], ds: 1, tilt: 0, snz: { x: 0, y: 0, vx: 0, vy: 0 }, snzInit: false, path: null };
-function rushHeadR(rect) { return rect.w * TUNE.bodyWFrac * 0.5 * RUSH.head; }
+function rushHeadR(rect) { return rect.w * BW() * 0.5 * RUSH.head; }
 /** Head centre in world coords for the current frame. */
 function rushHead(inp) {
     const { rect } = inp, Rh = rushHeadR(rect);
