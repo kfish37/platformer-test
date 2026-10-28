@@ -89,22 +89,22 @@ export const TUNE = {
     squishW: 1.95, // mound width vs hitbox width (drawn wider than the 28 px box)
     squishH: 1.02, // mound height vs hitbox height (lower than the old 1.5)
     squishFlat: 0.22, // bottom curve exponent (smaller = flatter, wider contact patch)
-    squishShape: 260, // shape pull toward the mound/blob target (1/s2); stiffer than fluidShape so poses read
-    crawlLen: 70, // px of travel per crawl cycle (front pushes forward, rear catches up); ~3.7 Hz at full run, slow enough for the body to follow
-    crawlAmp: 0.20, // crawl stretch amplitude (fraction of body width) at full run speed
-    crawlHump: 0.03, // top bulk rolls forward during the catch-up half (x body half-width)
+    squishShape: 150, // shape pull toward the mound/blob target (1/s2); stiffer than fluidShape so poses read
+    crawlLen: 85, // px of travel per crawl cycle (front pushes forward, rear catches up); ~3.7 Hz at full run, slow enough for the body to follow
+    crawlAmp: 0.55, // crawl stretch amplitude (fraction of body width) at full run speed
+    crawlHump: 0.12, // top bulk rolls forward during the catch-up half (x body half-width)
     rearDrag: 0.03, // running: rear sits a little lower and trails (x body height); keep small (wedge!)
     airRound: 0.80, // how far the mound rounds into a blob in the air (0 = stays a mound, 1 = round)
     fallTaper: 0.22, // falling: top narrows into a soft teardrop
-    takeoffStretch: 0.24, // vertical stretch at full jump speed (base releases the floor)
-    landSpread: 0.24, // pancake squash on a hard landing (fraction, scaled by impact speed)
-    wallBulge: 0.22, // wall slide: body bulges away from the wall (x body half-width)
-    dashStretch: 0.28, // dash: clean stretch along the dash direction
+    takeoffStretch: 0.42, // vertical stretch at full jump speed (base releases the floor)
+    landSpread: 0.45, // pancake squash on a hard landing (fraction, scaled by impact speed)
+    wallBulge: 0.3, // wall slide: body bulges away from the wall (x body half-width)
+    dashStretch: 0.45, // dash: clean stretch along the dash direction
     dashTrail: 0.04, // dash: extra drag on the rear (x body half-width)
     stickyBase: 0.88, // horizontal velocity kept per substep by points touching the floor (lower = stickier)
-    squishDamp: 18, // velocity damping of the squish body (fluidDamping is 6); 8 let a hard landing ring into a flat disc
-    squishEdgeDamp: 20, // neighbour damping in squish mode (fluidEdgeDamp is 14)
-    landKick: 0.18, // share of the landing velocity snap that goes into the body (pancake comes from landSpread)
+    squishDamp: 7, // velocity damping of the squish body (fluidDamping is 6); 8 let a hard landing ring into a flat disc
+    squishEdgeDamp: 9, // neighbour damping in squish mode (fluidEdgeDamp is 14)
+    landKick: 0.5, // share of the landing velocity snap that goes into the body (pancake comes from landSpread)
     mouthScale: 0.72, // squish: mouth size vs the old face (old grin was oversized on the wide body)
     shine: 1, // one small wet highlight (0 = off)
 };
@@ -203,7 +203,7 @@ function squishTargets(inp, dt) {
     const L = TUNE.crawlAmp * sim.sqRun * (0.5 - 0.5 * Math.cos(ph));
     const hump = TUNE.crawlHump * sim.sqRun * Math.max(0, -Math.sin(ph));
     sx *= 1 + L;
-    sy /= 1 + L * 0.75;
+    sy /= 1 + L * 1.15; // sloppy pass 2026-10-28: flatter when stretched (gif WALK)
     const fallK = !inp.grounded && inp.vy > 0 ? Math.min(1, inp.vy / 600) : 0;
     const out = [];
     for (let i = 0; i < n; i++) {
@@ -213,7 +213,7 @@ function squishTargets(inp, dt) {
         const u = Math.max(-1, Math.min(1, m.x / W));
         const back = Math.max(0, -dir * u);
         x += dir * W * L * 0.6 * (1 - 0.7 * hF); // the foot pushes ahead first, the top follows
-        y -= back * hF * H * 0.08 * sim.sqRun * Math.max(0, -Math.sin(ph)); // rear bunches up as it catches up
+        y -= back * hF * H * 0.22 * sim.sqRun * Math.max(0, -Math.sin(ph)); // rear bunches up as it catches up
         x += dir * W * hump * hF * hF; // top bulk rolls forward on the catch-up
         y += back * Math.sqrt(back) * hF * H * TUNE.rearDrag * sim.sqRun; // rear trails a little lower
         if (sim.sqWall > 0.01) {
