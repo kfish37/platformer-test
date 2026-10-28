@@ -346,6 +346,7 @@ function drawPlayer(ctx) {
             dashing: inActiveDash,
             timeMs: sloomooState.timeMs,
             dt: frameDt,
+            hurtMs: player.iframeMs,
         });
     }
     else if (spriteImg) {

@@ -107,6 +107,25 @@ export const TUNE = {
     landKick: 0.5, // share of the landing velocity snap that goes into the body (pancake comes from landSpread)
     mouthScale: 0.72, // squish: mouth size vs the old face (old grin was oversized on the wide body)
     shine: 1, // one small wet highlight (0 = off)
+    // squish2 (Opus pass 2, 2026-10-28, Fish's 84-frame gif): TIMED keyframe cycles drive the targets
+    // (walk = lump -> long flat stretch -> bunch; turn = rear up -> fold; takeoff column; splat landing; hurt).
+    // The springs only add overshoot. squish2=0 (or ?squish2=0) = squish v1 behaviour.
+    squish2: 1,
+    sq2W: 1.62, // rest width vs hitbox (rounder blob than v1's 1.95, leaves room to stretch flat)
+    sq2H: 1.06, // rest height vs hitbox
+    sq2Shape: 420, // spring pull toward the keyframe target (1/s2): stiff enough that timed poses land
+    sq2Damp: 12, // low damping = visible overshoot after each pose (9 made the lump ring into a pillar)
+    sq2EdgeDamp: 8,
+    runCycleLen: 120, // px of travel per walk cycle (~2.2 cycles/s at full run; 105 looked frantic on paper)
+    runFlat: 0.40, // walk: how flat the stretch pose gets (height x (1 - runFlat))
+    runWide: 0.50, // walk: how much wider the stretch pose gets (capped by maxWide)
+    maxWide: 2.4, // cap on visual body width (x hitbox width)
+    turnMs: 240, // turn-around: rear up tall then fold flat toward the new side
+    takeoffColMs: 120, // takeoff: base stays stuck to the floor this long (tall column) ...
+    takeoffCol: 0.60, // ... or until the column is this long (x body height), then it snaps
+    landMs2: 360, // landing: splat -> rebound tall -> settle
+    landSplat: 0.62, // landing splat depth (height x (1 - landSplat) at full impact)
+    hurtTotalMs: 460, // hurt reaction: spiky burst+flash -> splat with >< eyes -> re-form
 };
 if (typeof location !== "undefined") {
     const qs = new URLSearchParams(location.search);
@@ -118,10 +137,13 @@ if (typeof location !== "undefined") {
     const qsq = qs.get("squish");
     if (qsq !== null)
         TUNE.squish = Number(qsq) ? 1 : 0;
+    const qs2 = qs.get("squish2");
+    if (qs2 !== null)
+        TUNE.squish2 = Number(qs2) ? 1 : 0;
 }
 /** Body size vs hitbox: the squish mound is wider and lower than the old droplet. */
-const BW = () => TUNE.squish ? TUNE.squishW : TUNE.bodyWFrac;
-const BH = () => TUNE.squish ? TUNE.squishH : TUNE.bodyHFrac;
+const BW = () => TUNE.squish ? (TUNE.squish2 ? TUNE.sq2W : TUNE.squishW) : TUNE.bodyWFrac;
+const BH = () => TUNE.squish ? (TUNE.squish2 ? TUNE.sq2H : TUNE.squishH) : TUNE.bodyHFrac;
 const sim = {
     init: false, strands: [], trailMs: 0, prevWallSliding: false, prevWallSide: 0, w: 0, h: 0, rest: [], edge: [], pos: [], vel: [], restArea: 1,
     rope: [], ropePrev: [], drips: [],
@@ -129,6 +151,8 @@ const sim = {
     runDist: 0, squintMs: 0, wallFxMs: 0, runFxMs: 0, lastMs: 0, landMs: 0, landK: 0, elong: 0, elongDir: 1, prevDashing: false,
     turn: 1, prof: 0,
     sqAir: 0, sqRun: 0, sqPhase: 0, sqWall: 0, sqWallSide: 1, sqDash: 0, sqDir: 1, sqSx: 1, sqSy: 1,
+    q2Phase: 0, q2Face: 1, q2TurnMs: 0, q2TurnDir: 1, q2TakeMs: -1, q2TakeY: 0, q2Col: 0,
+    q2LandMs: 0, q2LandK: 0, q2RunW: 0, q2PrevHurt: 0, q2HurtOn: 0, q2HurtDir: 1, q2HurtFx: 0, hurtT: -1,
 };
 // ------------------------------------------------------------------ setup
 /** Squish shape: point i of a low wide mound (air = 0) morphing into a rounder blob (air = 1).
@@ -143,8 +167,229 @@ function moundPoint(i, n, W, H, air, fallK) {
     const by = -H * 0.54 - H * 0.54 * c;
     return { x: mx + (bx - mx) * air, y: my + (by - my) * air };
 }
+function sm01(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+/** Keyframe track: keys [u, value] sorted by u (0..1), smoothstep between keys. */
+function track(keys, u) {
+    for (let k = 1; k < keys.length; k++) {
+        const a = keys[k - 1], b = keys[k];
+        if (u <= b[0])
+            return a[1] + (b[1] - a[1]) * sm01((u - a[0]) / Math.max(1e-6, b[0] - a[0]));
+    }
+    return keys[keys.length - 1][1];
+}
+/** squish2: timed keyframe targets (gif-style cycles). Same outline model as v1; the timing and size
+ *  of the pose changes come from small state machines instead of a speed-driven sine. */
+function squish2Targets(inp, dt) {
+    const n = TUNE.points, rect = inp.rect;
+    const W = rect.w * BW() / 2, H = rect.h * BH();
+    const t = inp.timeMs, ms = dt * 1000;
+    const ax = rect.x + rect.w / 2, ay = rect.y + rect.h;
+    const ez = (cur, tg, rate) => cur + (tg - cur) * Math.min(1, dt * rate);
+    const wall = inp.wallSliding && inp.wallSide !== 0;
+    const airT = inp.grounded ? 0 : wall ? 0.5 : TUNE.airRound;
+    sim.sqAir = ez(sim.sqAir, airT, inp.grounded ? 20 : 9);
+    const speed = Math.abs(inp.vx);
+    const spK = inp.grounded && !inp.dashing ? Math.min(1, speed / 200) : 0;
+    sim.sqRun = ez(sim.sqRun, spK, spK > sim.sqRun ? 8 : 6);
+    if (inp.grounded)
+        sim.q2Phase = (sim.q2Phase + speed * dt / TUNE.runCycleLen) % 1;
+    if (sim.sqRun < 0.04)
+        sim.q2Phase = 0;
+    sim.sqWall = ez(sim.sqWall, wall ? 1 : 0, wall ? 14 : 9);
+    if (wall)
+        sim.sqWallSide = inp.wallSide;
+    sim.sqDash = ez(sim.sqDash, inp.dashing ? 1 : 0, inp.dashing ? 22 : 9);
+    if (speed > 30)
+        sim.sqDir = inp.vx > 0 ? 1 : -1;
+    else if (speed < 5 && sim.sqRun < 0.05)
+        sim.sqDir = inp.facing;
+    const dir = sim.sqDir;
+    // ---- events / timers
+    // turn-around on the ground: rear up tall, then fold flat toward the new side (gif REVERSE)
+    if (inp.grounded && !wall && !inp.dashing && inp.facing !== sim.q2Face) {
+        sim.q2TurnMs = TUNE.turnMs;
+        sim.q2TurnDir = inp.facing;
+    }
+    sim.q2Face = inp.facing;
+    let turnU = -1;
+    if (sim.q2TurnMs > 0) {
+        turnU = 1 - sim.q2TurnMs / TUNE.turnMs;
+        sim.q2TurnMs -= ms;
+        if (sim.q2TurnMs <= 0)
+            sim.q2Phase = 0.15;
+    }
+    // takeoff: the base stays stuck to the floor for a moment -> tall column, then it snaps up (gif JUMP)
+    if (!inp.grounded && sim.prevGrounded && inp.vy < -200) {
+        sim.q2TakeY = sim.prevY + rect.h;
+        sim.q2TakeMs = 0;
+    }
+    if (sim.q2TakeMs >= 0) {
+        sim.q2TakeMs += ms;
+        const ext = Math.max(0, sim.q2TakeY - ay), cap = H * TUNE.takeoffCol;
+        if (sim.q2TakeMs < TUNE.takeoffColMs && ext < cap && !inp.grounded)
+            sim.q2Col = ext;
+        else
+            sim.q2TakeMs = -1;
+    }
+    if (sim.q2TakeMs < 0)
+        sim.q2Col *= Math.exp(-dt * 40);
+    if (inp.grounded && sim.q2TakeMs < 0)
+        sim.q2Col = 0;
+    const col = sim.q2Col;
+    // landing timer (set in step on touchdown)
+    let landU = -1;
+    if (sim.q2LandMs > 0) {
+        landU = 1 - sim.q2LandMs / TUNE.landMs2;
+        sim.q2LandMs -= ms;
+    }
+    // hurt: iframeMs jumping up starts the reaction; elapsed time comes from iframeMs itself so the
+    // game's i-frame flicker (slime not drawn every other 60 ms) doesn't slow it down
+    const hm = inp.hurtMs ?? 0;
+    if (hm > sim.q2PrevHurt + 40) {
+        sim.q2HurtOn = hm;
+        sim.hurtT = 0;
+        sim.q2HurtFx = 0;
+        sim.q2HurtDir = inp.vx > 1 ? -1 : inp.vx < -1 ? 1 : -inp.facing; // splash flies opposite the knockback
+        for (let i = 0; i < 3; i++)
+            spawnDrop(ax + (Math.random() - 0.5) * rect.w * 0.6, ay - rect.h * 0.8, sim.q2HurtDir * (30 + Math.random() * 80), -(150 + Math.random() * 120), 1.1 + Math.random() * 0.8);
+    }
+    sim.q2PrevHurt = hm;
+    if (sim.hurtT >= 0) {
+        sim.hurtT = hm > 0 ? Math.max(sim.hurtT, sim.q2HurtOn - hm) : sim.hurtT + ms;
+        if (sim.hurtT > TUNE.hurtTotalMs)
+            sim.hurtT = -1;
+    }
+    const hT = sim.hurtT, kb = -sim.q2HurtDir;
+    if (hT >= 110 && sim.q2HurtFx === 0) {
+        // splat stage: droplets + thin goo strings fly out sideways (gif HURT-C)
+        sim.q2HurtFx = 1;
+        const hd = sim.q2HurtDir;
+        for (let i = 0; i < 5; i++)
+            spawnDrop(ax + hd * rect.w * 0.5, ay - rect.h * (0.15 + 0.4 * Math.random()), hd * (110 + Math.random() * 170) + inp.vx * 0.3, -(40 + Math.random() * 150), 1.2 + Math.random() * 1.3);
+        for (const f of [0.30, 0.38]) {
+            const pi = Math.round(n * (hd > 0 ? f : 1 - f)) % n, bp = sim.pos[pi];
+            sim.strands.push({ gx: ax + bp.x + hd * rect.w * 0.3, gy: ay + bp.y, pi, w: rect.w * 0.08, age: 0, hurt: true });
+        }
+    }
+    // ---- whole-body scale from the active cycle
+    let sx = 1, sy = 1;
+    const breath = inp.grounded ? Math.sin(t / 650) * 0.04 * (1 - sim.sqRun) : 0;
+    sy += breath;
+    sx -= breath * 0.7;
+    if (!inp.grounded && !wall && !inp.dashing) {
+        const k = Math.max(-1, Math.min(1, -inp.vy / 650));
+        if (k > 0) {
+            const st = TUNE.takeoffStretch * k;
+            sy *= 1 + st;
+            sx /= Math.sqrt(1 + st * 1.0);
+        }
+        else {
+            const st = 0.14 * -k;
+            sy *= 1 + st;
+            sx /= 1 + st * 0.6;
+        }
+    }
+    if (landU >= 0) {
+        const K = sim.q2LandK, S = TUNE.landSplat;
+        sy *= 1 + K * track([[0, 0], [0.10, -S], [0.28, -S * 0.8], [0.50, 0.12], [0.70, -0.04], [1, 0]], landU);
+        sx *= 1 + K * track([[0, 0], [0.10, S * 0.9], [0.28, S * 0.75], [0.50, -0.08], [0.70, 0.03], [1, 0]], landU);
+    }
+    let lean = 0;
+    if (turnU >= 0) {
+        sx *= track([[0, 1], [0.35, 0.74], [0.70, 1.38], [1, 1]], turnU);
+        sy *= track([[0, 1], [0.35, 1.40], [0.70, 0.60], [1, 1]], turnU);
+        lean = track([[0, 0], [0.35, -0.32], [0.70, 0.28], [1, 0]], turnU) * sim.q2TurnDir;
+    }
+    // walk cycle (gif WALK): lump -> long flat stretch, front pushing ahead -> rear bunches up -> lump
+    const runT = sim.sqRun * (turnU >= 0 ? 0 : 1) * (hT >= 0 ? 0.15 : 1) * (landU >= 0 && landU < 0.6 ? 0.3 : 1);
+    sim.q2RunW = ez(sim.q2RunW, runT, 14);
+    const R = sim.q2RunW, ph = sim.q2Phase;
+    const rsx = track([[0, 0.93], [0.30, 1 + TUNE.runWide], [0.52, 1 + TUNE.runWide * 1.04], [0.80, 1.02], [1, 0.93]], ph);
+    const rsy = track([[0, 1.08], [0.30, 1 - TUNE.runFlat], [0.52, 1 - TUNE.runFlat * 0.94], [0.80, 0.94], [1, 1.08]], ph);
+    sx *= 1 + (rsx - 1) * R;
+    sy *= 1 + (rsy - 1) * R;
+    const shift = track([[0, -0.10], [0.30, 0.12], [0.52, 0.16], [0.80, 0.02], [1, -0.10]], ph) * R;
+    const hump = track([[0, 0.12], [0.30, -0.04], [0.52, 0], [0.80, 0.26], [1, 0.12]], ph) * R;
+    const rearUp = track([[0, 0.08], [0.30, 0], [0.55, 0.02], [0.82, 0.16], [1, 0.08]], ph) * R;
+    // hurt: A spiky burst + tilt, B splat flat, C re-form with a wobble
+    let tilt = 0;
+    if (hT >= 0) {
+        if (hT < 110) {
+            const a = Math.sin(Math.PI * hT / 110);
+            sy *= 1 + 0.10 * a;
+            sx *= 1 - 0.06 * a;
+            tilt = 0.28 * a;
+        }
+        else if (hT < 300) {
+            const f = (inp.grounded ? 1 : 0.65) * track([[0, 0], [0.25, 1], [0.75, 1], [1, 0.6]], (hT - 110) / 190);
+            sy *= 1 - 0.36 * f;
+            sx *= 1 + 0.34 * f;
+            tilt = -0.08 * f;
+        }
+        else {
+            const u = (hT - 300) / Math.max(1, TUNE.hurtTotalMs - 300), w = Math.cos(u * Math.PI * 1.5) * (1 - u);
+            sy *= 1 - 0.3 * w;
+            sx *= 1 + 0.25 * w;
+        }
+    }
+    // death melt (lab / optional): wobble down into a flat puddle
+    const mk = Math.max(0, Math.min(1, inp.meltK ?? 0));
+    if (mk > 0) {
+        sy *= 1 - 0.7 * mk;
+        sx *= 1 + 0.5 * mk;
+    }
+    if (sim.sqDash > 0.01) {
+        const sp = Math.hypot(inp.vx, inp.vy) || 1, along = inp.dashing ? Math.abs(inp.vx) / sp : 1;
+        const d = TUNE.dashStretch * sim.sqDash;
+        sx *= (1 + d * along) / (1 + d * 0.5 * (1 - along));
+        sy *= (1 + d * (1 - along)) / (1 + d * 0.35 * along);
+    }
+    const maxSx = rect.w * TUNE.maxWide / (2 * W);
+    if (sx > maxSx)
+        sx = maxSx;
+    const fallK = !inp.grounded && inp.vy > 0 ? Math.min(1, inp.vy / 600) : 0;
+    const out = [];
+    for (let i = 0; i < n; i++) {
+        const m = moundPoint(i, n, W, H, sim.sqAir, fallK);
+        let x = m.x * sx, y = m.y * sy;
+        const hF = Math.min(1, Math.max(0, -m.y / H));
+        const u = Math.max(-1, Math.min(1, m.x / W));
+        const back = Math.max(0, -dir * u);
+        x += dir * W * shift * (1 - 0.4 * hF); // stretch: the foot slides ahead of the box first
+        x += dir * W * hump * hF * hF; // bunch: top bulk rolls forward
+        y -= back * hF * H * rearUp; // bunch: rear piles up as it catches up
+        x += W * lean * hF * hF; // turn-around lean
+        x += kb * W * tilt * hF; // hurt tilt
+        if (col > 0) {
+            const c = Math.cos((i / n) * Math.PI * 2), bF = sm01(-c * 1.15);
+            y += col * bF; // base still stuck to the floor
+            x *= 1 - 0.42 * bF * Math.min(1, col / (H * 0.3));
+        }
+        if (sim.sqWall > 0.01) {
+            const ws = sim.sqWallSide, onWall = Math.max(0, ws * u);
+            x -= ws * W * TUNE.wallBulge * sim.sqWall;
+            y -= onWall * H * 0.10 * sim.sqWall;
+        }
+        if (sim.sqDash > 0.01) {
+            x -= dir * back * back * W * TUNE.dashTrail * sim.sqDash;
+            y += (-H * 0.45 * sy - y) * back * 0.08 * sim.sqDash;
+        }
+        if (TUNE.jiggle > 0) {
+            const rp = Math.sin(i * 0.52 * 6 / Math.max(1, n / 12) + t / 210) + 0.5 * Math.sin(i * 1.3 - t / 330);
+            const wob = 1 + 0.8 * sim.sqRun + 2.5 * mk;
+            y += rp * TUNE.jiggle * H * Math.pow(hF, 1.5) * wob;
+            x += Math.sin(i * 0.9 + t / 260) * TUNE.jiggle * 1.2 * W * hF;
+        }
+        out.push({ x, y });
+    }
+    sim.sqSx = sx;
+    sim.sqSy = sy;
+    return out;
+}
 /** Per-frame target outline for the squish body (constant over the substeps). */
 function squishTargets(inp, dt) {
+    if (TUNE.squish2)
+        return squish2Targets(inp, dt);
     const n = TUNE.points, rect = inp.rect;
     const W = rect.w * BW() / 2, H = rect.h * BH();
     const t = inp.timeMs;
@@ -444,10 +689,10 @@ function step(inp) {
                 ks = TUNE.fluidShape + (TUNE.stiffness - TUNE.fluidShape) * 0.6 * Math.min(1, elong);
                 kd = TUNE.fluidDamping;
                 if (tgt) {
-                    ks = TUNE.squishShape;
-                    kd = TUNE.squishDamp;
+                    ks = TUNE.squish2 ? TUNE.sq2Shape : TUNE.squishShape;
+                    kd = TUNE.squish2 ? TUNE.sq2Damp : TUNE.squishDamp;
                 }
-                const edgeDamp = tgt ? TUNE.squishEdgeDamp : TUNE.fluidEdgeDamp;
+                const edgeDamp = tgt ? (TUNE.squish2 ? TUNE.sq2EdgeDamp : TUNE.squishEdgeDamp) : TUNE.fluidEdgeDamp;
                 for (const j of [(i + 1) % n, (i - 1 + n) % n]) {
                     const o = sim.pos[j], ei = j === (i + 1) % n ? i : j, rl = tgtEdge ? tgtEdge[ei] : sim.edge[ei] * Math.sqrt(sx * sy);
                     const ex = o.x - p.x, ey = o.y - p.y, el = Math.hypot(ex, ey) || 1e-6;
@@ -575,6 +820,12 @@ function step(inp) {
             sim.landK = Math.min(1, (impact - 120) / 650);
             sim.landMs = TUNE.landMs;
         }
+        if (TUNE.squish && TUNE.squish2 && impact > 90) {
+            sim.q2LandK = Math.max(0.4, Math.min(1, (impact - 90) / 650));
+            sim.q2LandMs = TUNE.landMs2;
+            if (impact <= 260)
+                spawnRing(ax, footY, rect.w * 0.8);
+        }
         if (impact > 260) {
             const k = Math.min(1, (impact - 260) / 600);
             const count = TUNE.squish ? 2 + Math.round(k * 3) : 3 + Math.round(k * 9);
@@ -609,7 +860,7 @@ function step(inp) {
         s.age += dt * 1000;
         const bp = sim.pos[s.pi];
         const len = Math.hypot(ax + bp.x - s.gx, ay + bp.y - s.gy);
-        if (len > rect.h * TUNE.strandSnap || s.age > TUNE.strandMs || inp.grounded) {
+        if (len > rect.h * TUNE.strandSnap || s.age > TUNE.strandMs || (inp.grounded && !s.hurt)) {
             if (!inp.grounded) {
                 const mx = (ax + bp.x + s.gx) / 2, my = (ay + bp.y + s.gy) / 2;
                 spawnDrop(mx, my, inp.vx * 0.2 + (Math.random() - 0.5) * 30, 30 + Math.random() * 40, 1.1 + Math.random() * 0.7);
@@ -769,6 +1020,31 @@ export function drawSlime(ctx, inp) {
         ctx.strokeStyle = "rgba(155,219,247,0.40)";
         ctx.stroke();
     }
+    // hurt burst: spiky goo streaks out of the top (gif HURT-A), drawn behind the body so their roots merge
+    if (TUNE.squish && TUNE.squish2 && sim.hurtT >= 0 && sim.hurtT < 180) {
+        const a = Math.sin(Math.PI * sim.hurtT / 180), np = sim.pos.length, kb = -sim.q2HurtDir;
+        ctx.save();
+        ctx.fillStyle = SL.body;
+        ctx.strokeStyle = SL.outline;
+        ctx.lineWidth = TUNE.outlineW * 0.8;
+        for (const [f, len] of [[-0.17, 0.7], [-0.09, 1.05], [-0.02, 0.85], [0.06, 1.15], [0.14, 0.9], [0.22, 0.55]]) {
+            const i = Math.round(((f + 1) % 1) * np) % np;
+            const p = sim.pos[i], pr = sim.pos[(i - 1 + np) % np], pn = sim.pos[(i + 1) % np];
+            let nx = pn.y - pr.y, ny = -(pn.x - pr.x);
+            const nl = Math.hypot(nx, ny) || 1;
+            nx /= nl;
+            ny /= nl;
+            const L = len * rect.h * 0.55 * a, bw = rect.w * 0.10;
+            ctx.beginPath();
+            ctx.moveTo(ox + p.x - ny * bw - nx * 3, oy + p.y + nx * bw - ny * 3);
+            ctx.lineTo(ox + p.x + nx * L + kb * L * 0.35, oy + p.y + ny * L);
+            ctx.lineTo(ox + p.x + ny * bw - nx * 3, oy + p.y - nx * bw - ny * 3);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
     smoothClosed(ctx, sim.pos, ox, oy);
     ctx.fillStyle = SL.body;
     if (TUNE.goo && !TUNE.squish)
@@ -819,6 +1095,10 @@ export function drawSlime(ctx, inp) {
         drawShine(ctx, ox, oy, b, hd);
     else
         drawJelly(ctx, ox, oy, b, hd, inp.timeMs);
+    if (TUNE.squish && TUNE.squish2 && sim.hurtT >= 0 && sim.hurtT < 120) { // hurt flash
+        ctx.fillStyle = "rgba(255,255,255," + (0.6 * (1 - sim.hurtT / 120)).toFixed(3) + ")";
+        ctx.fillRect(ox + b.cx - b.w * 2, oy + b.top - b.h, b.w * 4, b.h * 3);
+    }
     ctx.restore();
     ctx.save();
     if (foot) {
@@ -1197,6 +1477,23 @@ function drawFace(ctx, inp, cx, cy, bw, bh) {
     }
     if (inp.grounded && Math.abs(inp.vx) < 20 && (inp.timeMs % 4000) > 3860)
         lid = 1;
+    // squish2: the face squashes with the body (eyes flatten instead of shrinking), >< while hurt
+    const v2 = TUNE.squish && TUNE.squish2;
+    const restH = sim.h * BH();
+    let rv = 1;
+    if (v2) {
+        const k = Math.max(0.5, Math.min(1.15, bh / restH));
+        eyeStretch *= k;
+        rv = Math.min(1, k);
+        const mk = inp.meltK ?? 0;
+        if (mk > 0) {
+            lid = Math.max(lid, Math.min(0.85, mk));
+            mouth = "worried";
+        }
+    }
+    const hurtFace = v2 && sim.hurtT >= 50 && sim.hurtT < 360;
+    if (hurtFace)
+        mouth = "o";
     // side = eased facing x how side-on he is: 0 = straight on, +-1 = 3/4 view toward that side
     const side = sim.turn * sim.prof, a = Math.abs(side);
     const dir = side > 0.001 ? 1 : side < -0.001 ? -1 : inp.facing;
@@ -1205,7 +1502,7 @@ function drawFace(ctx, inp, cx, cy, bw, bh) {
         mouth = "grin";
     const ex = cx + side * bw * 0.15;
     const ey = cy - bh * 0.14 - a * bh * 0.03;
-    const r = Math.min(bw, bh) * TUNE.eyeFrac;
+    const r = Math.min(bw, v2 ? Math.max(bh, restH * 0.75) : bh) * TUNE.eyeFrac;
     const gap = r * 1.02;
     // pupils glance toward motion and toward the side he's facing
     const lookX = Math.max(-1, Math.min(1, inp.vx / 260 + side * 0.6)) * r * 0.18;
@@ -1213,8 +1510,28 @@ function drawFace(ctx, inp, cx, cy, bw, bh) {
     // 3/4 view: both eyes slide toward the front; the far one tucks behind, narrower and a bit higher
     const nearX = ex + dir * gap * (1 - 0.12 * a), farX = ex - dir * gap * (1 - 0.48 * a);
     const farSq = 1 - 0.24 * a;
-    eye(ctx, farX, ey - a * r * 0.10, r * (1 - 0.06 * a), eyeStretch, lid, lookX, lookY, farSq);
-    eye(ctx, nearX, ey, r, eyeStretch, lid, lookX, lookY, 1);
+    if (hurtFace) {
+        // >< squint (gif HURT-C)
+        const chev = (x, y, sz, d) => {
+            ctx.beginPath();
+            ctx.moveTo(x - d * sz * 0.6, y - sz * 0.7);
+            ctx.lineTo(x + d * sz * 0.6, y);
+            ctx.lineTo(x - d * sz * 0.6, y + sz * 0.7);
+            ctx.stroke();
+        };
+        ctx.save();
+        ctx.strokeStyle = SL.outline;
+        ctx.lineWidth = Math.max(1.0, r * 0.24);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        chev(Math.min(nearX, farX) - r * 0.15, ey, r * 0.7, 1);
+        chev(Math.max(nearX, farX) + r * 0.15, ey, r * 0.7, -1);
+        ctx.restore();
+    }
+    else {
+        eye(ctx, farX, ey - a * r * 0.10, r * (1 - 0.06 * a), eyeStretch, lid, lookX, lookY, farSq);
+        eye(ctx, nearX, ey, r, eyeStretch, lid, lookX, lookY, 1);
+    }
     // white freckles under the outer edge of each eye (the far cheek's fade out as he turns)
     ctx.fillStyle = SL.hi;
     const fr = Math.max(0.45, bw * 0.022);
@@ -1222,7 +1539,7 @@ function drawFace(ctx, inp, cx, cy, bw, bh) {
         const far = sgn !== dir;
         if (far && a > 0.75)
             continue;
-        const bx = (far ? farX : nearX) + sgn * (r * (far ? farSq : 1) + r * 0.15 - r), by = ey + r * 1.3;
+        const bx = (far ? farX : nearX) + sgn * (r * (far ? farSq : 1) + r * 0.15 - r), by = ey + r * 1.3 * rv;
         for (const [dx, dy, k] of [[-0.25, 0, 1], [0.2, -0.12, 0.8], [0.05, 0.3, 0.9], [0.45, 0.2, 0.7]]) {
             ctx.beginPath();
             ctx.arc(bx + dx * r * sgn * (far ? farSq : 1), by + dy * r, fr * k * (far ? 1 - 0.5 * a : 1), 0, Math.PI * 2);
@@ -1231,7 +1548,7 @@ function drawFace(ctx, inp, cx, cy, bw, bh) {
     }
     ctx.strokeStyle = SL.outline;
     ctx.lineWidth = TUNE.outlineW * 0.85;
-    const my = ey + r * 1.45;
+    const my = ey + r * 1.45 * rv;
     const mx = cx + side * bw * 0.20;
     const mb = TUNE.squish ? bw * TUNE.mouthScale : bw; // mouth size base
     ctx.beginPath();
