@@ -126,6 +126,27 @@ export const TUNE = {
     landMs2: 360, // landing: splat -> rebound tall -> settle
     landSplat: 0.62, // landing splat depth (height x (1 - landSplat) at full impact)
     hurtTotalMs: 460, // hurt reaction: spiky burst+flash -> splat with >< eyes -> re-form
+    // fluid3 (Opus pass 3, 2026-10-28, Fish: "more fluid on the initial jump and landing frames ... yellow accents and
+    // snooze ... almost blending with the blue part"). Continuous springs instead of timed snaps for takeoff/landing,
+    // cap = soft band hugging the body outline, neck grows out of the body with a wide root.
+    // fluid3=0 (or ?fluid3=0) = squish2 v2 exactly.
+    fluid3: 1,
+    f3TakeStick: 115, // takeoff: ms the base stays glued to the floor while the body pulls up (no hard cap, tanh)
+    f3TakeCol: 0.85, // takeoff: soft limit of the floor-to-body neck (x body height)
+    f3TakeNeck: 0.62, // takeoff: how thin the lower body pinches into a neck while it is stuck
+    f3TakeLag: 70, // takeoff: ms the top lags (gather/flatten) before it follows the hitbox up
+    f3ColK: 330, // takeoff neck spring (1/s2): after release the base springs up with overshoot
+    f3ColDamp: 10,
+    f3LandK: 520, // landing squash spring (1/s2): impact -> splat -> rebound -> settle in one motion
+    f3LandDamp: 13,
+    f3LandOoze: 1.9, // extra damping while the splat flows back (goo lingers flat, smaller rebound)
+    f3LandV: 40, // landing squash initial speed at full impact (1/s); tiny hops get 15%
+    f3Rim: 0.12, // landing: rim bulge at the splat edges (x half-width)
+    f3CapDepth: 0.22, // cap band depth (fraction of the outline->head-centre distance), drips add more
+    f3CapSpan: 0.185, // cap covers +-this fraction of the outline around the top point
+    f3Feather: 1.1, // soft yellow->blue blend band (px at hitbox scale)
+    f3RopeCarry: 0.36, // stalk follows the head less rigidly -> lags on takeoff, whips on landing
+    f3RootW: 2, // neck root spans +-N body outline points (wide gooey base, no seam)
 };
 if (typeof location !== "undefined") {
     const qs = new URLSearchParams(location.search);
@@ -140,7 +161,12 @@ if (typeof location !== "undefined") {
     const qs2 = qs.get("squish2");
     if (qs2 !== null)
         TUNE.squish2 = Number(qs2) ? 1 : 0;
+    const qf3 = qs.get("fluid3");
+    if (qf3 !== null)
+        TUNE.fluid3 = Number(qf3) ? 1 : 0;
 }
+/** fluid3 path active (needs the squish2 body). */
+const F3 = () => !!(TUNE.fluid3 && TUNE.squish && TUNE.squish2);
 /** Body size vs hitbox: the squish mound is wider and lower than the old droplet. */
 const BW = () => TUNE.squish ? (TUNE.squish2 ? TUNE.sq2W : TUNE.squishW) : TUNE.bodyWFrac;
 const BH = () => TUNE.squish ? (TUNE.squish2 ? TUNE.sq2H : TUNE.squishH) : TUNE.bodyHFrac;
@@ -153,6 +179,8 @@ const sim = {
     sqAir: 0, sqRun: 0, sqPhase: 0, sqWall: 0, sqWallSide: 1, sqDash: 0, sqDir: 1, sqSx: 1, sqSy: 1,
     q2Phase: 0, q2Face: 1, q2TurnMs: 0, q2TurnDir: 1, q2TakeMs: -1, q2TakeY: 0, q2Col: 0,
     q2LandMs: 0, q2LandK: 0, q2RunW: 0, q2PrevHurt: 0, q2HurtOn: 0, q2HurtDir: 1, q2HurtFx: 0, hurtT: -1,
+    f3Col: 0, f3ColV: 0, f3Lag: 0, f3K: 0, f3Land: 0, f3LandV: 0, f3Spread: 0,
+    f3Drip: 0, f3DripV: 0, f3Slide: 0, f3SlideV: 0, f3TipX: 0, f3TipY: 0, f3TipSp: 0, f3SegK: 0, f3Stuck: 0,
 };
 // ------------------------------------------------------------------ setup
 /** Squish shape: point i of a low wide mound (air = 0) morphing into a rounder blob (air = 1).
@@ -223,7 +251,7 @@ function squish2Targets(inp, dt) {
         sim.q2TakeY = sim.prevY + rect.h;
         sim.q2TakeMs = 0;
     }
-    if (sim.q2TakeMs >= 0) {
+    if (sim.q2TakeMs >= 0 && !F3()) {
         sim.q2TakeMs += ms;
         const ext = Math.max(0, sim.q2TakeY - ay), cap = H * TUNE.takeoffCol;
         if (sim.q2TakeMs < TUNE.takeoffColMs && ext < cap && !inp.grounded)
@@ -235,6 +263,86 @@ function squish2Targets(inp, dt) {
         sim.q2Col *= Math.exp(-dt * 40);
     if (inp.grounded && sim.q2TakeMs < 0)
         sim.q2Col = 0;
+    const f3 = F3();
+    let f3Gather = 0, spl = 0, spr = 0;
+    if (f3) {
+        // takeoff without a snap: the base stays glued (neck length saturates softly, no cap), the top gathers
+        // for a moment, then the base is released into a spring that overshoots (body bunches up = jelly wobble)
+        sim.q2Col = 0;
+        if (sim.q2TakeMs >= 0) {
+            sim.q2TakeMs += ms;
+            sim.f3Stuck = 1;
+            const ext = Math.max(0, sim.q2TakeY - ay), C = H * TUNE.f3TakeCol;
+            const colT = C * Math.tanh(ext / C);
+            sim.f3ColV = (colT - sim.f3Col) / Math.max(1e-4, dt);
+            sim.f3Col = colT;
+            sim.f3Lag = ext * (1 - sm01(sim.q2TakeMs / TUNE.f3TakeLag));
+            f3Gather = 1 - sm01(sim.q2TakeMs / TUNE.f3TakeLag);
+            if (sim.q2TakeMs >= TUNE.f3TakeStick || inp.grounded) {
+                sim.q2TakeMs = -1;
+                sim.f3ColV = Math.min(sim.f3ColV, 0);
+            }
+        }
+        else {
+            sim.f3Lag = 0;
+            sim.f3Stuck *= Math.exp(-dt * 22); // released: the funnel rounds off while it retracts (no V tip)
+            const sb = 3, hh = dt / sb;
+            for (let k = 0; k < sb; k++) {
+                sim.f3ColV += (-TUNE.f3ColK * sim.f3Col - TUNE.f3ColDamp * sim.f3ColV) * hh;
+                sim.f3Col += sim.f3ColV * hh;
+            }
+            if (sim.f3Col < -H * 0.12) {
+                sim.f3Col = -H * 0.12;
+                sim.f3ColV = Math.max(0, sim.f3ColV);
+            }
+        }
+        // landing: impact feeds a damped squash spring (splat -> rebound -> settle, no keyframe pops)
+        if (inp.grounded && !sim.prevGrounded) {
+            const impact = Math.max(sim.prevVy, sim.airMaxVy);
+            if (impact > 90)
+                sim.f3LandV += TUNE.f3LandV * Math.max(0.15, Math.min(1, (impact - 90) / 650));
+            sim.f3Col = 0;
+            sim.f3ColV = 0;
+            sim.f3Lag = 0;
+            sim.q2TakeMs = -1;
+            sim.f3Stuck = 0;
+            for (let k = 1; k < sim.rope.length; k++) {
+                const rp = sim.rope[k], rq = sim.ropePrev[k];
+                rq.x = rp.x - (rp.x - rq.x) * 0.5;
+                rq.y = rp.y - (rp.y - rq.y) * 0.5;
+            }
+        }
+        {
+            const sb = 4, hh = dt / sb;
+            for (let k = 0; k < sb; k++) {
+                const ooze = sim.f3Land > 0 && sim.f3LandV < 0 ? TUNE.f3LandOoze : 1;
+                sim.f3LandV += (-TUNE.f3LandK * sim.f3Land - TUNE.f3LandDamp * ooze * sim.f3LandV) * hh;
+                sim.f3Land += sim.f3LandV * hh;
+            }
+            if (!inp.grounded) {
+                sim.f3Land *= Math.exp(-dt * 14);
+                sim.f3LandV *= Math.exp(-dt * 14);
+            }
+            sim.f3Spread = ez(sim.f3Spread, sim.f3Land, 22); // width spreads a beat after the height drops
+            spl = Math.max(-0.45, Math.min(1.1, sim.f3Land));
+            spr = Math.max(-0.45, Math.min(1.1, sim.f3Spread));
+        }
+        // cap drips + slide: lag behind velocity changes, spring back
+        const dvy3 = inp.vy - sim.prevVy, dvx3 = inp.vx - sim.prevVx;
+        sim.f3DripV += -Math.max(-700, Math.min(700, dvy3)) * 0.011;
+        sim.f3SlideV += -Math.max(-700, Math.min(700, dvx3)) * 0.006;
+        {
+            const sb = 2, hh = dt / sb;
+            for (let k = 0; k < sb; k++) {
+                sim.f3DripV += (-180 * sim.f3Drip - 9 * sim.f3DripV) * hh;
+                sim.f3Drip += sim.f3DripV * hh;
+                sim.f3SlideV += (-140 * sim.f3Slide - 8 * sim.f3SlideV) * hh;
+                sim.f3Slide += sim.f3SlideV * hh;
+            }
+            sim.f3Drip = Math.max(-0.45, Math.min(1, sim.f3Drip));
+            sim.f3Slide = Math.max(-1, Math.min(1, sim.f3Slide));
+        }
+    }
     const col = sim.q2Col;
     // landing timer (set in step on touchdown)
     let landU = -1;
@@ -276,7 +384,30 @@ function squish2Targets(inp, dt) {
     const breath = inp.grounded ? Math.sin(t / 650) * 0.04 * (1 - sim.sqRun) : 0;
     sy += breath;
     sx -= breath * 0.7;
-    if (!inp.grounded && !wall && !inp.dashing) {
+    if (f3) {
+        // eased: the column grows out of the gather instead of switching on in one frame
+        const kT = !inp.grounded && !wall && !inp.dashing ? Math.max(-1, Math.min(1, -inp.vy / 650)) : 0;
+        sim.f3K = ez(sim.f3K, kT, inp.grounded ? 16 : kT > sim.f3K ? 11 : 7);
+        const k = sim.f3K;
+        if (k > 0) {
+            const st = TUNE.takeoffStretch * k;
+            sy *= 1 + st;
+            sx /= Math.sqrt(1 + st * 1.0);
+        }
+        else {
+            const st = 0.14 * -k;
+            sy *= 1 + st;
+            sx /= 1 + st * 0.6;
+        }
+        if (f3Gather > 0) {
+            const g = Math.sin(Math.PI * Math.min(1, f3Gather * 1.15)) * 0.6 + f3Gather * 0.4;
+            sy *= 1 - 0.20 * g;
+            sx *= 1 + 0.15 * g;
+        }
+        sy *= 1 - TUNE.landSplat * spl;
+        sx *= 1 + 1.15 * TUNE.landSplat * spr;
+    }
+    else if (!inp.grounded && !wall && !inp.dashing) {
         const k = Math.max(-1, Math.min(1, -inp.vy / 650));
         if (k > 0) {
             const st = TUNE.takeoffStretch * k;
@@ -289,7 +420,7 @@ function squish2Targets(inp, dt) {
             sx /= 1 + st * 0.6;
         }
     }
-    if (landU >= 0) {
+    if (landU >= 0 && !f3) {
         const K = sim.q2LandK, S = TUNE.landSplat;
         sy *= 1 + K * track([[0, 0], [0.10, -S], [0.28, -S * 0.8], [0.50, 0.12], [0.70, -0.04], [1, 0]], landU);
         sx *= 1 + K * track([[0, 0], [0.10, S * 0.9], [0.28, S * 0.75], [0.50, -0.08], [0.70, 0.03], [1, 0]], landU);
@@ -301,7 +432,7 @@ function squish2Targets(inp, dt) {
         lean = track([[0, 0], [0.35, -0.32], [0.70, 0.28], [1, 0]], turnU) * sim.q2TurnDir;
     }
     // walk cycle (gif WALK): lump -> long flat stretch, front pushing ahead -> rear bunches up -> lump
-    const runT = sim.sqRun * (turnU >= 0 ? 0 : 1) * (hT >= 0 ? 0.15 : 1) * (landU >= 0 && landU < 0.6 ? 0.3 : 1);
+    const runT = sim.sqRun * (turnU >= 0 ? 0 : 1) * (hT >= 0 ? 0.15 : 1) * (f3 ? 1 - 0.7 * Math.max(0, Math.min(1, spl)) : landU >= 0 && landU < 0.6 ? 0.3 : 1);
     sim.q2RunW = ez(sim.q2RunW, runT, 14);
     const R = sim.q2RunW, ph = sim.q2Phase;
     const rsx = track([[0, 0.93], [0.30, 1 + TUNE.runWide], [0.52, 1 + TUNE.runWide * 1.04], [0.80, 1.02], [1, 0.93]], ph);
@@ -364,6 +495,21 @@ function squish2Targets(inp, dt) {
             const c = Math.cos((i / n) * Math.PI * 2), bF = sm01(-c * 1.15);
             y += col * bF; // base still stuck to the floor
             x *= 1 - 0.42 * bF * Math.min(1, col / (H * 0.3));
+        }
+        if (f3) {
+            const th3 = (i / n) * Math.PI * 2, c = Math.cos(th3), bF = sm01((-c - 0.05) / 0.9);
+            if (sim.f3Lag > 0)
+                y += sim.f3Lag * (1 - bF); // top gathers low for a moment
+            if (sim.f3Col !== 0) {
+                y += sim.f3Col * bF; // base glued to the floor / springs up past rest
+                if (sim.f3Col > 0)
+                    x *= 1 - TUNE.f3TakeNeck * sim.f3Stuck * sm01(sim.f3Col / (H * 0.5)) * Math.pow(bF, 1.2);
+            }
+            if (spr > 0.02) { // splat: thick rounded rim flowing out along the floor
+                const sd = Math.sin(th3), side = Math.pow(Math.abs(sd), 3) * (1 - 0.5 * hF);
+                x += Math.sign(sd) * W * TUNE.f3Rim * spr * side;
+                y -= side * H * 0.05 * spr * (c < 0 ? 0 : 1);
+            }
         }
         if (sim.sqWall > 0.01) {
             const ws = sim.sqWallSide, onWall = Math.max(0, ws * u);
@@ -757,11 +903,15 @@ function step(inp) {
         const top = sim.pos[0];
         const base = { x: ax + top.x, y: ay + top.y + 1 };
         const spdK = Math.min(1, Math.hypot(inp.vx, inp.vy) / 500);
-        const seg = rect.h * TUNE.ropeSegFrac * (1 + TUNE.ropeStretch * spdK * spdK);
+        // fluid3: the stretch eases in/out; an instant length change was turned into verlet velocity and
+        // flung the stalk up on takeoff / folded it down over the face on landing
+        if (F3())
+            sim.f3SegK += (spdK * spdK - sim.f3SegK) * Math.min(1, h * 7);
+        const seg = rect.h * TUNE.ropeSegFrac * (1 + TUNE.ropeStretch * (F3() ? sim.f3SegK : spdK * spdK));
         // carry the stalk partly with the head so jumps/landings don't fold it flat
         const bdx = base.x - sim.rope[0].x, bdy = base.y - sim.rope[0].y;
         for (let i = 1; i <= TUNE.ropeSegs; i++) {
-            const c = TUNE.ropeCarry;
+            const c = F3() ? TUNE.f3RopeCarry : TUNE.ropeCarry;
             sim.rope[i].x += bdx * c;
             sim.rope[i].y += bdy * c;
             sim.ropePrev[i].x += bdx * c;
@@ -799,7 +949,7 @@ function step(inp) {
                 const rawCurl = 0.10 * inp.facing * (i / TUNE.ropeSegs) + trail * (0.35 + 0.9 * i / TUNE.ropeSegs);
                 const curl = Math.sign(rawCurl) * Math.min(Math.abs(rawCurl), 1.12);
                 const dx = upx * Math.cos(curl) - upy * Math.sin(curl), dy = upx * Math.sin(curl) + upy * Math.cos(curl);
-                const stiff = TUNE.ropeStiffness * (1 - (i - 1) / (TUNE.ropeSegs + 1));
+                const stiff = TUNE.ropeStiffness * (1 - (i - 1) / (TUNE.ropeSegs + 1)) * (F3() ? 1 - 0.25 * Math.max(0, Math.min(1, sim.f3Land)) : 1);
                 p.x += (a.x + dx * seg - p.x) * stiff;
                 p.y += (a.y + dy * seg - p.y) * stiff;
                 // length constraint
@@ -809,6 +959,13 @@ function step(inp) {
                 p.y = a.y + ey / el * seg;
             }
         }
+    }
+    if (F3()) {
+        const tp = sim.rope[sim.rope.length - 1];
+        const sp = Math.hypot(tp.x - sim.f3TipX, tp.y - sim.f3TipY) / dt;
+        sim.f3TipSp += (Math.min(1500, sp) - sim.f3TipSp) * Math.min(1, dt * 12);
+        sim.f3TipX = tp.x;
+        sim.f3TipY = tp.y;
     }
     // ---- events -> particles
     const footY = ay;
@@ -996,9 +1153,12 @@ export function drawSlime(ctx, inp) {
     ctx.lineCap = "round";
     // if the snoozle has swung down beside the head, tuck it behind the body
     const tip = sim.rope[sim.rope.length - 1];
-    const ropeBehind = tip.y > oy + b.top + hd.h * 0.22;
+    const ropeBehind = tip.y > oy + b.top + hd.h * 0.22 && !(F3() && tip.y < oy + hd.cy - hd.h * 0.05);
     if (ropeBehind) {
-        drawRope(ctx, rect.h);
+        if (F3())
+            drawRope3(ctx, rect.h, ox, oy);
+        else
+            drawRope(ctx, rect.h);
         drawBulb(ctx, rect.h);
     }
     // goo strands still stuck to the floor / wall
@@ -1090,7 +1250,10 @@ export function drawSlime(ctx, inp) {
         ctx.fill();
     }
     // yellow goo cap draped over the top of the head
-    drawCap(ctx, ox + sim.pos[0].x * 0.6 + hd.cx * 0.4, oy + b.top, hd.w, hd.h, inp.timeMs);
+    if (F3())
+        drawCap3(ctx, ox, oy, b, hd, inp.timeMs);
+    else
+        drawCap(ctx, ox + sim.pos[0].x * 0.6 + hd.cx * 0.4, oy + b.top, hd.w, hd.h, inp.timeMs);
     if (TUNE.squish)
         drawShine(ctx, ox, oy, b, hd);
     else
@@ -1112,8 +1275,12 @@ export function drawSlime(ctx, inp) {
     ctx.stroke();
     ctx.restore();
     // snoozle neck melts into the cap (drawn over the outline at the joint)
-    if (!ropeBehind)
-        drawRope(ctx, rect.h);
+    if (!ropeBehind) {
+        if (F3())
+            drawRope3(ctx, rect.h, ox, oy);
+        else
+            drawRope(ctx, rect.h);
+    }
     facingSign = inp.facing;
     // face
     drawFace(ctx, inp, ox + hd.cx, oy + hd.cy, hd.w, hd.h);
@@ -1170,6 +1337,10 @@ function drawPuddle(ctx, ox, oy, f, pw, tMs) {
     }
 }
 function drawStrand(ctx, s, ox, oy, ph) {
+    if (F3()) {
+        drawStrand3(ctx, s, ox, oy, ph);
+        return;
+    }
     const bp = sim.pos[s.pi];
     const x0 = ox + bp.x, y0 = oy + bp.y, x1 = s.gx, y1 = s.gy;
     const len = Math.hypot(x1 - x0, y1 - y0) || 1;
@@ -1194,6 +1365,55 @@ function drawStrand(ctx, s, ox, oy, ph) {
     ctx.ellipse(x1, y1, wEnd * 1.6, wEnd * 0.9, Math.atan2(ny, nx), 0, Math.PI * 2);
     ctx.fillStyle = SL.body;
     ctx.fill();
+}
+const strL = [], strR = [];
+/** fluid3 goo string: as wide as the body where it leaves it, thins toward the middle as it stretches,
+ *  small foot blob where it is still stuck. */
+function drawStrand3(ctx, s, ox, oy, ph) {
+    const bp = sim.pos[s.pi];
+    const x0 = ox + bp.x, y0 = oy + bp.y, x1 = s.gx, y1 = s.gy;
+    const len = Math.hypot(x1 - x0, y1 - y0);
+    if (len < 0.5)
+        return;
+    const k = Math.min(1, len / (ph * TUNE.strandSnap));
+    const nx = -(y1 - y0) / len, ny = (x1 - x0) / len;
+    const sway = Math.sin(s.age / 60 + s.pi) * len * 0.08;
+    strL.length = 0;
+    strR.length = 0;
+    const S = 8;
+    for (let j = 0; j <= S; j++) {
+        const t = j / S, bow = Math.sin(Math.PI * t);
+        const cx = x0 + (x1 - x0) * t + sway * bow, cy = y0 + (y1 - y0) * t + len * 0.06 * bow;
+        const w = s.w * (0.55 * Math.pow(1 - t, 2.2) * (1 - 0.5 * k) + 0.55 * Math.pow(t, 3)) + Math.max(0.25, s.w * 0.22 * (1 - k));
+        strL.push({ x: cx + nx * w, y: cy + ny * w });
+        strR.push({ x: cx - nx * w, y: cy - ny * w });
+    }
+    ctx.beginPath();
+    ctx.moveTo(strL[0].x, strL[0].y);
+    smoothOpen(ctx, strL);
+    const e = strR[S];
+    ctx.lineTo(e.x, e.y);
+    for (let j = S - 1; j > 0; j--) {
+        const p = strR[j], q = strR[j - 1];
+        ctx.quadraticCurveTo(p.x, p.y, (p.x + q.x) / 2, (p.y + q.y) / 2);
+    }
+    ctx.lineTo(strR[0].x, strR[0].y);
+    ctx.closePath();
+    ctx.fillStyle = SL.body;
+    ctx.fill();
+    ctx.strokeStyle = SL.outline;
+    ctx.lineWidth = 0.8;
+    for (const side of [strL, strR]) {
+        ctx.beginPath();
+        ctx.moveTo(side[0].x, side[0].y);
+        smoothOpen(ctx, side);
+        ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.ellipse(x1, y1, s.w * 1.5, s.w * 0.7, 0, Math.PI, 0);
+    ctx.fillStyle = SL.body;
+    ctx.fill();
+    ctx.stroke();
 }
 /** Squish look: flat cel shade + one small wet highlight on the back-upper flank (no bubbles/rim/halo). */
 function drawShine(ctx, ox, oy, b, hd) {
@@ -1341,6 +1561,197 @@ function drawRope(ctx, ph) {
         ctx.stroke();
     }
 }
+/** Catmull-Rom point on the closed body outline at fractional index s. */
+function crPt(P, s) {
+    const n = P.length, i = Math.floor(s), f = s - i, w = (k) => P[((k % n) + n) % n];
+    const a = w(i - 1), b = w(i), c = w(i + 1), d = w(i + 2), f2 = f * f, f3 = f2 * f;
+    const cr = (p0, p1, p2, p3) => 0.5 * (2 * p1 + (-p0 + p2) * f + (2 * p0 - 5 * p1 + 4 * p2 - p3) * f2 + (-p0 + 3 * p1 - 3 * p2 + p3) * f3);
+    return { x: cr(a.x, b.x, c.x, d.x), y: cr(a.y, b.y, c.y, d.y) };
+}
+/** Smooth open curve through pts (quadratic midpoints); the path must already be at pts[0]. */
+function smoothOpen(ctx, pts) {
+    for (let i = 1; i < pts.length - 1; i++) {
+        const a = pts[i], b = pts[i + 1];
+        ctx.quadraticCurveTo(a.x, a.y, (a.x + b.x) / 2, (a.y + b.y) / 2);
+    }
+    const l = pts[pts.length - 1];
+    ctx.lineTo(l.x, l.y);
+}
+// cap drips: [position along the cap -1..1, length]
+const CAP_DRIPS = [[-0.70, 0.55], [-0.42, 1.0], [-0.14, 0.70], [0.13, 1.05], [0.42, 0.78], [0.70, 0.50]];
+const capIn = [], capOut = [];
+/** fluid3 cap: a band of yellow goo hugging the deforming outline (inner edge = outline pulled toward the
+ *  head centre, drips spring with the body), soft feathered edge into the blue, cel shade continuing across.
+ *  Drawn inside the body clip, so the body outline stays one continuous line around both. */
+function drawCap3(ctx, ox, oy, b, hd, tMs) {
+    const P = sim.pos, n = P.length, M = 60;
+    const span = n * TUNE.f3CapSpan;
+    const hcx = hd.cx, hcy = hd.cy;
+    capIn.length = 0;
+    capOut.length = 0;
+    const dripK = 1 + 0.75 * sim.f3Drip, slide = sim.f3Slide * 0.12;
+    for (let k = 0; k <= M; k++) {
+        const u = -1 + 2 * k / M;
+        const p = crPt(P, u * span);
+        const dx = hcx - p.x, dy = hcy - p.y;
+        const d = Math.min(0.6, TUNE.f3CapDepth * (1 - Math.pow(Math.abs(u), 2.4)));
+        let dd = 0; // drips hang down (gravity) instead of converging on the head centre, round tips
+        for (let j = 0; j < CAP_DRIPS.length; j++) {
+            const dr = CAP_DRIPS[j], z = (u - dr[0] - slide) / 0.10;
+            if (z * z < 1)
+                dd += Math.pow(1 - z * z, 0.6) * dr[1] * TUNE.f3CapDepth * 1.1 * dripK * (1 + 0.10 * Math.sin(tMs / 520 + j * 1.7));
+        }
+        const dl = Math.hypot(dx, dy) * Math.min(0.5, dd);
+        capIn.push({ x: ox + p.x + dx * d, y: oy + p.y + dy * d + dl });
+        capOut.push({ x: ox + p.x - dx * 0.3, y: oy + p.y - dy * 0.3 });
+    }
+    const path = () => {
+        ctx.beginPath();
+        ctx.moveTo(capOut[0].x, capOut[0].y);
+        for (let k = 1; k <= M; k++)
+            ctx.lineTo(capOut[k].x, capOut[k].y);
+        ctx.lineTo(capIn[M].x, capIn[M].y);
+        for (let k = M - 1; k > 0; k--) {
+            const a = capIn[k], c = capIn[k - 1];
+            ctx.quadraticCurveTo(a.x, a.y, (a.x + c.x) / 2, (a.y + c.y) / 2);
+        }
+        ctx.lineTo(capIn[0].x, capIn[0].y);
+        ctx.closePath();
+    };
+    ctx.save();
+    // feather: translucent yellow bleeding into the blue (no outline on the drip edge)
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.strokeStyle = SL.bodyYellow;
+    const F = TUNE.f3Feather;
+    for (const [a, wdt] of [[0.22, F * 2.0], [0.40, F * 1.0]]) {
+        ctx.globalAlpha = a;
+        ctx.lineWidth = wdt;
+        ctx.beginPath();
+        ctx.moveTo(capIn[0].x, capIn[0].y);
+        smoothOpen(ctx, capIn);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // body: shade colour, then the lit part offset like the body's cel shade
+    path();
+    ctx.fillStyle = SL.yellowShade;
+    ctx.fill();
+    ctx.save();
+    path();
+    ctx.clip();
+    ctx.translate(-sim.turn * b.w * 0.09, 0);
+    path();
+    ctx.fillStyle = SL.bodyYellow;
+    ctx.fill();
+    ctx.restore();
+    // one soft highlight on the back-upper part of the cap
+    const f = facingSign, hp = crPt(P, -0.38 * f * span), hdx = hcx - hp.x, hdy = hcy - hp.y;
+    ctx.globalAlpha = 0.38;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.ellipse(ox + hp.x + hdx * 0.16, oy + hp.y + hdy * 0.16, Math.max(0.8, b.w * 0.06), Math.max(0.5, b.h * 0.035), Math.atan2(hdy, hdx) + Math.PI / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+}
+const ropeC = [], ropeA = [], ropeB = [];
+/** fluid3 neck: Catmull-Rom stalk whose root flares into the body outline (root edges ARE outline points, so the
+ *  purple line runs from the body straight up the neck), thins when it stretches. */
+function drawRope3(ctx, ph, ox, oy) {
+    const r = sim.rope, N = r.length;
+    if (N < 2)
+        return;
+    const P = sim.pos, n = P.length, R = Math.max(1, Math.round(TUNE.f3RootW));
+    ropeC.length = 0;
+    ropeA.length = 0;
+    ropeB.length = 0;
+    const node = (k) => r[Math.max(0, Math.min(N - 1, k))];
+    for (let i = 0; i < N - 1; i++) {
+        const a = node(i - 1), b0 = node(i), c = node(i + 1), d = node(i + 2);
+        for (let s = 0; s < 3; s++) {
+            const f = s / 3, f2 = f * f, f3 = f2 * f;
+            const cr = (p0, p1, p2, p3) => 0.5 * (2 * p1 + (-p0 + p2) * f + (2 * p0 - 5 * p1 + 4 * p2 - p3) * f2 + (-p0 + 3 * p1 - 3 * p2 + p3) * f3);
+            ropeC.push({ x: cr(a.x, b0.x, c.x, d.x), y: cr(a.y, b0.y, c.y, d.y) });
+        }
+    }
+    ropeC.push({ x: r[N - 1].x, y: r[N - 1].y });
+    let L = 0;
+    for (let i = 1; i < N; i++)
+        L += Math.hypot(r[i].x - r[i - 1].x, r[i].y - r[i - 1].y);
+    const thin = Math.max(0.72, 1 / Math.sqrt(Math.max(1, L / (ph * TUNE.ropeSegFrac * (N - 1)))));
+    const w0 = ph * 0.078, w1 = ph * 0.036;
+    const rA = { x: ox + P[R].x, y: oy + P[R].y }, rB = { x: ox + P[n - R].x, y: oy + P[n - R].y };
+    const rootHalf = Math.hypot(rA.x - rB.x, rA.y - rB.y) / 2;
+    const M = ropeC.length;
+    for (let k = 1; k < M; k++) {
+        const a = ropeC[k - 1], d = ropeC[Math.min(M - 1, k + 1)], c = ropeC[k];
+        let nx = -(d.y - a.y), ny = d.x - a.x;
+        const l = Math.hypot(nx, ny) || 1;
+        nx /= l;
+        ny /= l;
+        const u = k / (M - 1);
+        let w = (w1 + (w0 - w1) * Math.pow(1 - u, 1.6)) * (1 + (thin - 1) * Math.min(1, u / 0.2));
+        const fl = Math.pow(1 - sm01(u / 0.30), 2);
+        w += (rootHalf * 0.92 - w) * fl;
+        ropeA.push({ x: c.x + nx * w, y: c.y + ny * w });
+        ropeB.push({ x: c.x - nx * w, y: c.y - ny * w });
+    }
+    let A = ropeA, B = ropeB;
+    if ((A[0].x - B[0].x) * (rA.x - rB.x) + (A[0].y - B[0].y) * (rA.y - rB.y) < 0) {
+        A = ropeB;
+        B = ropeA;
+    }
+    // no side point may dip below its root (inner side of a sharp bend folded into a V notch)
+    {
+        const p1 = P[1], pn = P[n - 1];
+        let ux = p1.y - pn.y, uy = -(p1.x - pn.x);
+        const ul = Math.hypot(ux, uy) || 1;
+        ux /= ul;
+        uy /= ul;
+        if (uy > 0) {
+            ux = -ux;
+            uy = -uy;
+        }
+        for (const [side, root] of [[A, rA], [B, rB]]) {
+            for (let k = 0; k < Math.min(side.length, 8); k++) {
+                const q = side[k], dd = (q.x - root.x) * ux + (q.y - root.y) * uy;
+                if (dd < 0.3) {
+                    q.x += ux * (0.3 - dd);
+                    q.y += uy * (0.3 - dd);
+                }
+            }
+        }
+    }
+    A.unshift(rA);
+    B.unshift(rB);
+    // fill: root edge -> up side A -> tip -> down side B -> dip into the cap
+    ctx.beginPath();
+    ctx.moveTo(rA.x, rA.y);
+    smoothOpen(ctx, A);
+    const bt = B[B.length - 1];
+    ctx.lineTo(bt.x, bt.y);
+    for (let k = B.length - 2; k > 0; k--) {
+        const p = B[k], q = B[k - 1];
+        ctx.quadraticCurveTo(p.x, p.y, (p.x + q.x) / 2, (p.y + q.y) / 2);
+    }
+    ctx.lineTo(rB.x, rB.y);
+    const p0 = P[0];
+    ctx.quadraticCurveTo(ox + p0.x, oy + p0.y + ph * 0.10, rA.x, rA.y);
+    ctx.closePath();
+    ctx.fillStyle = SL.bodyYellow;
+    ctx.fill();
+    // outline continues the body outline up both sides
+    ctx.strokeStyle = SL.outline;
+    ctx.lineWidth = TUNE.outlineW * 0.85;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    for (const side of [A, B]) {
+        ctx.beginPath();
+        ctx.moveTo(side[0].x, side[0].y);
+        smoothOpen(ctx, side);
+        ctx.stroke();
+    }
+}
 /** Yellow goo cap with drippy lower edge, drawn inside the body clip. */
 function drawCap(ctx, cx, top, bw, bh, tMs) {
     const depth = bh * TUNE.capDepth;
@@ -1388,6 +1799,11 @@ function drawBulb(ctx, ph) {
     ctx.save();
     ctx.translate(tip.x, tip.y);
     ctx.rotate(ang + Math.PI / 2);
+    if (F3()) {
+        // soft blob: stretches along the stalk when the tip whips, squashes on a landing splat
+        const sA = 1 + Math.min(0.24, sim.f3TipSp / 1700), q = 0.16 * Math.max(-0.4, Math.min(1, sim.f3Land));
+        ctx.scale((1 + q) / Math.sqrt(sA), sA * (1 - q));
+    }
     const shape = () => {
         ctx.beginPath();
         ctx.moveTo(0, R * 0.9);
@@ -1420,6 +1836,8 @@ function drawBulb(ctx, ph) {
     ctx.stroke();
     // glossy highlight streak
     ctx.strokeStyle = "#FFFFFF";
+    if (F3())
+        ctx.globalAlpha = 0.7;
     ctx.lineWidth = Math.max(0.8, R * 0.16);
     ctx.beginPath();
     ctx.moveTo(facingSign * R * 0.45, -R * 0.55);
